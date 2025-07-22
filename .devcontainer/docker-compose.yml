@@ -1,0 +1,11 @@
+services:
+  nextjs:
+    container_name: chat-crm-app-nextjs
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ..:/app
