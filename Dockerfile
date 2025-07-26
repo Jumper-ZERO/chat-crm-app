@@ -17,22 +17,30 @@ RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y \
   && echo 'eval "$(starship init bash)"' >> ~/.bashrc
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 
-# Stage 2 Dev environment
+RUN useradd -m -s /bin/bash dev && echo "dev:dev" | chpasswd && adduser dev sudo
+
+# Limpia caché de npm antes de instalar
+RUN npm cache clean --force
+
+# Copia archivos de dependencias
+COPY package*.json ./
+
+# Instala dependencias con configuración más robusta
+RUN npm ci --no-audit --no-fund --prefer-offline
+
+# Stage 2: Dev environment
 FROM base AS dev
 COPY . .
+EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 # Stage 3: Produccion environment
 FROM node:22-bookworm-slim AS prod
-
 WORKDIR /app
-
-COPY --from=base /app /app
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/package*.json ./
 COPY . .
-
 RUN npm run build && npm prune --production
-
+EXPOSE 3000
 CMD ["npm", "start"]

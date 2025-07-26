@@ -3,18 +3,30 @@
   "workspaceFolder": "/app",
   "dockerComposeFile": "docker-compose.yml",
   "service": "nextjs",
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "npm install --prefer-offline",
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
-      ]
-    },
-    "settings": {
-      "terminal.integrated.defaultProfile.linux": "bash",
-      "editor.formatOnSave": true
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "typescript.preferences.preferTypeOnlyAutoImports": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js App",
+      "onAutoForward": "notify"
     }
   }
 }
