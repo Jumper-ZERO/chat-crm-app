@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Link } from "@tanstack/react-router"
+
+import { Route as RouteChats } from '@/routes/(dashboard)/chats'
 
 export function LoginForm({
   className,
@@ -49,7 +52,10 @@ export function LoginForm({
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
-                  Login
+                  <Link
+                    to={RouteChats.to}>
+                    Login
+                  </Link>
                 </Button>
                 <Button variant="outline" className="w-full">
                   Login with Google

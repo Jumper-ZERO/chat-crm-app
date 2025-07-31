@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RouteRouteImport } from './routes/route'
+import { Route as dashboardChatsRouteImport } from './routes/(dashboard)/chats'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
 const RouteRoute = RouteRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const dashboardChatsRoute = dashboardChatsRouteImport.update({
+  id: '/(dashboard)/chats',
+  path: '/chats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authLoginRoute = authLoginRouteImport.update({
@@ -26,27 +32,31 @@ const authLoginRoute = authLoginRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof RouteRoute
   '/login': typeof authLoginRoute
+  '/chats': typeof dashboardChatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof RouteRoute
   '/login': typeof authLoginRoute
+  '/chats': typeof dashboardChatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof RouteRoute
   '/(auth)/login': typeof authLoginRoute
+  '/(dashboard)/chats': typeof dashboardChatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login'
+  fullPaths: '/' | '/login' | '/chats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login'
-  id: '__root__' | '/' | '/(auth)/login'
+  to: '/' | '/login' | '/chats'
+  id: '__root__' | '/' | '/(auth)/login' | '/(dashboard)/chats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   RouteRoute: typeof RouteRoute
   authLoginRoute: typeof authLoginRoute
+  dashboardChatsRoute: typeof dashboardChatsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof RouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(dashboard)/chats': {
+      id: '/(dashboard)/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof dashboardChatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/login': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   RouteRoute: RouteRoute,
   authLoginRoute: authLoginRoute,
+  dashboardChatsRoute: dashboardChatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
