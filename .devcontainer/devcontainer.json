@@ -1,0 +1,34 @@
+{
+  "name": "Chat CRM App Devcontainer",
+  "workspaceFolder": "/app",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "react",
+  "postCreateCommand": "npm install --prefer-offline",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.formatOnSave": true,
+        "typescript.preferences.preferTypeOnlyAutoImports": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    5173
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Chat CRM App",
+      "onAutoForward": "notify"
+    }
+  }
+}
