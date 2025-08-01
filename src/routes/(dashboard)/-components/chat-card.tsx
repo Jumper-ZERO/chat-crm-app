@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react"
+import { useState } from "react"
 
 import { ChatInput } from "./chat-input"
 import { ChatMessage } from "./chat-message"
@@ -9,9 +10,17 @@ import { initialsName, numberFormat } from "@/lib/format"
 import { useT } from "@/lib/i18n/useT"
 import type { MessageData, UserContact } from "@/types/chat"
 
+
 export const ChatCard = ({ messages, contact }: { messages?: MessageData[], contact: UserContact }) => {
-  const hasMessages = messages && messages.length > 0
-  const renderedMessages = messages?.map((m, i) => (
+  const [chatMessages, setChatMessages] = useState(messages || [])
+  const hasMessages = chatMessages && chatMessages.length > 0
+
+  const addMessage = (msg: string) => {
+    const newMessage: MessageData = { content: msg, isSent: true }
+    setChatMessages(prev => [...prev, newMessage])
+  }
+
+  const renderedMessages = chatMessages?.map((m, i) => (
     <ChatMessage key={i} content={m.content} isSent={m.isSent} />
   ))
 
@@ -25,7 +34,7 @@ export const ChatCard = ({ messages, contact }: { messages?: MessageData[], cont
         {hasMessages ? renderedMessages : <ChatCardEmpty />}
       </CardContent>
       <CardFooter>
-        <ChatInput />
+        <ChatInput onSend={addMessage} />
       </CardFooter>
     </Card>
   )
