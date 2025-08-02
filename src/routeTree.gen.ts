@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ConversacionesRouteImport } from './routes/conversaciones'
 import { Route as RouteRouteImport } from './routes/route'
 import { Route as dashboardChatsRouteImport } from './routes/(dashboard)/chats'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 
+const ConversacionesRoute = ConversacionesRouteImport.update({
+  id: '/conversaciones',
+  path: '/conversaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RouteRoute = RouteRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +37,52 @@ const authLoginRoute = authLoginRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof RouteRoute
+  '/conversaciones': typeof ConversacionesRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof RouteRoute
+  '/conversaciones': typeof ConversacionesRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof RouteRoute
+  '/conversaciones': typeof ConversacionesRoute
   '/(auth)/login': typeof authLoginRoute
   '/(dashboard)/chats': typeof dashboardChatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/chats'
+  fullPaths: '/' | '/conversaciones' | '/login' | '/chats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/chats'
-  id: '__root__' | '/' | '/(auth)/login' | '/(dashboard)/chats'
+  to: '/' | '/conversaciones' | '/login' | '/chats'
+  id:
+    | '__root__'
+    | '/'
+    | '/conversaciones'
+    | '/(auth)/login'
+    | '/(dashboard)/chats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   RouteRoute: typeof RouteRoute
+  ConversacionesRoute: typeof ConversacionesRoute
   authLoginRoute: typeof authLoginRoute
   dashboardChatsRoute: typeof dashboardChatsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/conversaciones': {
+      id: '/conversaciones'
+      path: '/conversaciones'
+      fullPath: '/conversaciones'
+      preLoaderRoute: typeof ConversacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +109,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   RouteRoute: RouteRoute,
+  ConversacionesRoute: ConversacionesRoute,
   authLoginRoute: authLoginRoute,
   dashboardChatsRoute: dashboardChatsRoute,
 }
