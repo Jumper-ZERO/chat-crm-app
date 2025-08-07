@@ -1,6 +1,6 @@
 "use client"
 import * as React from "react"
-import { ArchiveX, Command, File, Inbox, Send, Trash2,Users   } from "lucide-react"
+import {Command, MessageCircleMore, ArrowLeftRight, Send,Users, Bell, CircleUserRound, MessageSquareText } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -10,41 +10,48 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSpace,
 } from "@/components/ui/sidebar"
 const data = [
     {
-      title: "Comunication",
+      title: "Conversacion",
       url: "#",
-      icon: Users,
-      isActive: true,
+      icon: MessageCircleMore ,
     },
     {
-      title: "Drafts",
+      title: "Conexiones",
       url: "#",
-      icon: File,
-      isActive: false,
+      icon: ArrowLeftRight ,
     },
     {
-      title: "Sent",
+      title: "Contactos",
       url: "#",
       icon: Send,
-      isActive: false,
     },
     {
-      title: "Junk",
+      title: "Usuarios",
       url: "#",
-      icon: ArchiveX,
-      isActive: false,
+      icon: Users,
     },
     {
-      title: "Trash",
+      title: "Notificaciones",
       url: "#",
-      icon: Trash2,
-      isActive: false,
+      icon: Bell,
+    },
+    {
+      title: "Mensajes",
+      url: "#",
+      icon: MessageSquareText,
+    },
+    {
+      title: "Yo",
+      url: "#",
+      icon: CircleUserRound,
     }
+    
 ]
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const [activeItem, setActiveItem] = React.useState(data)
+    // const [activeItem, setActiveItem] = React.useState(data)
   return (
     <Sidebar
       collapsible="icon"
@@ -76,21 +83,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {data.map((item) => (
+                {data.map((item,i) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={{
                         children: item.title,
                         hidden: false,
                       }}
-                    //   isActive={activeItem?.title === item.title}
-                    //   className="px-2.5 md:px-2"
                     >
-                        {/* <a href={item.url}></a> */}
-                        <item.icon />
+                      <a href={item.url} className="flex items-center gap-2">
+                        <item.icon className="size-4" /> 
                         <span>{item.title}</span>
-                        
+                      </a>
                     </SidebarMenuButton>
+                    {i === 3 && <SidebarSpace />}
                   </SidebarMenuItem>
                 ))}
               </SidebarMenu>

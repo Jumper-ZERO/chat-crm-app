@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { cva, VariantProps } from "class-variance-authority"
+import { cva, type VariantProps } from "class-variance-authority"
 import { PanelLeftIcon } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -142,7 +142,9 @@ function SidebarProvider({
           )}
           {...props}
         >
-          {children}
+          <div className="w-full max-w-none px-5 mx-5">
+            {children}
+          </div>
         </div>
       </TooltipProvider>
     </SidebarContext.Provider>
@@ -243,6 +245,10 @@ function Sidebar({
       </div>
     </div>
   )
+}
+
+function SidebarSpace() {
+  return <div className="mt-90" />;
 }
 
 function SidebarTrigger({
@@ -715,4 +721,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  SidebarSpace,
 }
