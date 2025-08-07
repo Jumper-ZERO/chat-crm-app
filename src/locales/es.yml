@@ -3,3 +3,30 @@ chat:
   noMessagesYet: "No hay mensajes aún"
   sendMessage: "Enviar mensaje"
   placeholder: "Escribe tu mensaje aquí..."
+
+login: 
+  title: "Iniciar Sesión"
+  description: "Ingrese su correo electrónico a continuación para acceder a su cuenta."
+  emailLabel: "Email"
+  emailPlaceholder: "m@example.com"
+  passwordLabel: "Contraseña"
+  forgotPassword: "Olvidaste tu contraseña?"
+  button: "Iniciar sesión"
+  noAccountText: "No tienes una cuenta?"
+  registerLink: "Regístrate"
+
+forgotPassword: 
+  companyName: "CODECTA."
+  welcomeTitle: "Recupera tu cuenta"
+  noAccountText: "Ingresa tu correo electrónico para recibir un enlace para recuperar tu contraseña."
+  emailLabel: "Correo electrónico"
+  emailPlaceholder: "m@example.com"
+  returnToLogin: "Volver a iniciar sesión"
+  footerText: "Al hacer clic en continuar, aceptas nuestros"
+  termsOfService: "Términos de servicio"
+  privacyPolicy: "Política de privacidad"
+  button: "Enviar enlace"
+
+
+
+

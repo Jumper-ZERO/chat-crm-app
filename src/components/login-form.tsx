@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useT } from "@/lib/i18n/useT";
 import { cn } from "@/lib/utils"
 import { Route as RouteChats } from '@/routes/(dashboard)/chats'
 
@@ -17,20 +18,23 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const { t } = useT();
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>{t("login.title")}</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            {t("login.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("login.emailLabel")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -40,12 +44,12 @@ export function LoginForm({
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t("login.passwordLabel")}</Label>
                   <a
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    {t("login.forgotPassword")}
                   </a>
                 </div>
                 <Input id="password" type="password" required />
@@ -54,18 +58,15 @@ export function LoginForm({
                 <Button type="submit" className="w-full">
                   <Link
                     to={RouteChats.to}>
-                    Login
+                    {t("login.button")}
                   </Link>
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
                 </Button>
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
+              {t("login.noAccountText")}{" "}
+              <a href="/(auth)/register" className="underline underline-offset-4">
+                {t("login.registerLink")}
               </a>
             </div>
           </form>
