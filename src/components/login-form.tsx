@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,9 +11,9 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { api } from "@/lib/api"
 import { useT } from "@/lib/i18n/useT";
 import { cn } from "@/lib/utils"
-import { Route as RouteChats } from '@/routes/(dashboard)/chats'
 
 export function LoginForm({
   className,
@@ -20,9 +21,29 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
 
   const { t } = useT();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      await api.post('/auth/login', { username, password });
+
+      // Redirigir al dashboard si fue exitoso
+      navigate({ to: '/chats' });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al iniciar sesión');
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      {error && <div className="text-red-500 text-sm">{error}</div>}
       <Card>
         <CardHeader>
           <CardTitle>{t("login.title")}</CardTitle>
@@ -31,14 +52,15 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">{t("login.emailLabel")}</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="username"
+                  placeholder="write your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -52,14 +74,15 @@ export function LoginForm({
                     {t("login.forgotPassword")}
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required />
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
-                  <Link
-                    to={RouteChats.to}>
-                    {t("login.button")}
-                  </Link>
+                  {t("login.button")}
                 </Button>
               </div>
             </div>

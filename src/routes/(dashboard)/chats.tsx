@@ -9,11 +9,9 @@ export const Route = createFileRoute('/(dashboard)/chats')({
 function RouteComponent() {
 
   return (
-    <div className='flex flex-col gap-6 p-6 md:p-10'>
-      <ChatCard contact={{
-        fullName: "John Doe",
-        phoneNumber: '51 123456789'
-      }} />
-    </div>
+    <ChatCard contact={{
+      fullName: "John Doe",
+      phoneNumber: '51 123456789'
+    }} />
   )
 }
