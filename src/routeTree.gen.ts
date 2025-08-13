@@ -13,6 +13,7 @@ import { Route as RouteRouteImport } from './routes/route'
 import { Route as dashboardChatsRouteImport } from './routes/(dashboard)/chats'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as dashboardContactsIndexRouteImport } from './routes/(dashboard)/contacts/index'
 
 const RouteRoute = RouteRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const dashboardContactsIndexRoute = dashboardContactsIndexRouteImport.update({
+  id: '/(dashboard)/contacts/',
+  path: '/contacts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof RouteRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
+  '/contacts': typeof dashboardContactsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof RouteRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
+  '/contacts': typeof dashboardContactsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,18 +61,20 @@ export interface FileRoutesById {
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(dashboard)/chats': typeof dashboardChatsRoute
+  '/(dashboard)/contacts/': typeof dashboardContactsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/forgot-password' | '/login' | '/chats'
+  fullPaths: '/' | '/forgot-password' | '/login' | '/chats' | '/contacts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/forgot-password' | '/login' | '/chats'
+  to: '/' | '/forgot-password' | '/login' | '/chats' | '/contacts'
   id:
     | '__root__'
     | '/'
     | '/(auth)/forgot-password'
     | '/(auth)/login'
     | '/(dashboard)/chats'
+    | '/(dashboard)/contacts/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -72,6 +82,7 @@ export interface RootRouteChildren {
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authLoginRoute: typeof authLoginRoute
   dashboardChatsRoute: typeof dashboardChatsRoute
+  dashboardContactsIndexRoute: typeof dashboardContactsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -104,6 +115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(dashboard)/contacts/': {
+      id: '/(dashboard)/contacts/'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof dashboardContactsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -112,6 +130,7 @@ const rootRouteChildren: RootRouteChildren = {
   authForgotPasswordRoute: authForgotPasswordRoute,
   authLoginRoute: authLoginRoute,
   dashboardChatsRoute: dashboardChatsRoute,
+  dashboardContactsIndexRoute: dashboardContactsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
