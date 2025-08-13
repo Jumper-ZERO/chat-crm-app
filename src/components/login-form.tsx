@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { api } from "@/lib/api"
+import { login } from "@/lib/api/auth"
 import { useT } from "@/lib/i18n/useT";
 import { cn } from "@/lib/utils"
 
@@ -29,15 +29,11 @@ export function LoginForm({
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
-    try {
-      await api.post('/auth/login', { username, password });
-
-      // Redirigir al dashboard si fue exitoso
+    const isSigIn = await login({username, password});
+    if (isSigIn) {
       navigate({ to: '/chats' });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+    } else {
+      setError('Error al iniciar sesión');
     }
   };
 
