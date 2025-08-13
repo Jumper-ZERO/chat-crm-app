@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { API_URL } from '@/lib/api'
+import { API_URL } from '@/lib/api/config'
 import type { AuthUser, LoginPayload } from '@/types/auth.types';
 import type { RouteContext } from '@/types/route.types';
 
