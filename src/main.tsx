@@ -10,7 +10,10 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { I18nProvider } from '@/lib/i18n/I18nProvider'
 
 // Create a new router instance
-const router = createRouter({ routeTree })
+const router = createRouter({
+  context: { user: null }, // Auth context
+  routeTree,
+})
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
