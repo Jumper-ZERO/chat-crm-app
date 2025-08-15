@@ -1,8 +1,9 @@
 chat:
-  unknownUser: "Usuario desconocido"
-  noMessagesYet: "No hay mensajes aún"
-  sendMessage: "Enviar mensaje"
-  placeholder: "Escribe tu mensaje aquí..."
+  user:
+    unknown: "Usuario desconocido"
+  empty: "No hay mensajes aún"
+  input:
+    placeholder: "Escribe tu mensaje aquí..."
 
 login:
   title: "Iniciar Sesión"

@@ -51,7 +51,7 @@ const ChatCardHeader = ({ name, phone }: { name?: string, phone: string }) => {
         <AvatarFallback className="font-bold">{initials}</AvatarFallback>
       </Avatar>
       <CardTitle className="flex flex-col space-y-1 items-start">
-        <p className="font-bold">{name || t("chat.unknownUser")}</p>
+        <p className="font-bold">{name || t("chat.user.unknown")}</p>
         <p className="text-sm text-muted-foreground">{phoneFormat}</p>
       </CardTitle>
     </div>
@@ -63,7 +63,7 @@ const ChatCardEmpty = () => {
   return (
     <div className="flex items-center justify-center h-full">
       <h3 className="scroll-m-20 text-center py-7 text-2xl font-semibold tracking-tight">
-        {t("chat.noMessagesYet")}
+        {t("chat.empty")}
       </h3>
     </div>
   )

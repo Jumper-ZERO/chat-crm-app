@@ -40,7 +40,7 @@ export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
         <Textarea
           id="message"
           ref={textareaRef}
-          placeholder={t("chat.placeholder")}
+          placeholder={t("chat.input.placeholder")}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           value={input}
