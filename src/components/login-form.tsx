@@ -49,17 +49,17 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>{t("login.title")}</CardTitle>
           <CardDescription>
-            {t("login.description")}
+            {t("login.desc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
-                <Label htmlFor="email">{t("login.email.label")}</Label>
+                <Label htmlFor="email">{t("login.form.username.label")}</Label>
                 <Input
                   id="username"
-                  placeholder="write your username"
+                  placeholder={t("login.form.username.placeholder")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -67,12 +67,12 @@ export function LoginForm({
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
-                  <Label htmlFor="password">{t("login.password.label")}</Label>
+                  <Label htmlFor="password">{t("login.form.password.label")}</Label>
                   <a
                     href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    {t("login.password.forgot")}
+                    {t("login.form.password.forgot")}
                   </a>
                 </div>
                 <Input
@@ -83,12 +83,12 @@ export function LoginForm({
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
-                  {t("login.button")}
+                  {t("login.form.button")}
                 </Button>
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
-              {t("login.link.noAccount")}{" "}
+              {t("login.link.noaccount")}{" "}
               <a href="/(auth)/register" className="underline underline-offset-4">
                 {t("login.link.register")}
               </a>
