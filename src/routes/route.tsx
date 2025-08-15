@@ -1,17 +1,15 @@
-import { createFileRoute, Navigate } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
+import { Route as loginRoute } from '@/routes/(auth)/login'
 import { Route as chatRoute } from '@/routes/(dashboard)/chats'
 
 export const Route = createFileRoute('/')({
   loader: ({ context }) => {
-    if (!context.auth.isAuthenticated) {
-      throw redirect({ to: '/login' })
+    if (!context.user) {
+      throw redirect({ to: loginRoute.to })
+    } else {
+      throw redirect({ to: chatRoute.to })
     }
-    return null
   },
-  component: RouteComponent,
+  component: () => <Outlet />,
 })
-
-function RouteComponent() {
-  return <Navigate to={chatRoute.to} />
-}
