@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -11,7 +12,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { api } from "@/lib/api"
+import { Toaster } from "@/components/ui/sonner"
+import { login } from "@/lib/api/auth"
 import { useT } from "@/lib/i18n/useT";
 import { cn } from "@/lib/utils"
 
@@ -23,27 +25,26 @@ export function LoginForm({
   const { t } = useT();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
-    try {
-      await api.post('/auth/login', { username, password });
-
-      // Redirigir al dashboard si fue exitoso
+    const isSigIn = await login({username, password});
+    if (isSigIn) {
       navigate({ to: '/chats' });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+    } else {
+      toast('Error al iniciar sesion', {
+        description: "Nombre de usuario o contraseña incorrectos",
+      })
     }
   };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {/* toast */}
+      <Toaster position="top-right" />
+
+      {/* card */}
       <Card>
         <CardHeader>
           <CardTitle>{t("login.title")}</CardTitle>
