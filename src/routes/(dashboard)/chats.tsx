@@ -11,7 +11,7 @@ function RouteComponent() {
   return (
     <ChatCard contact={{
       fullName: "John Doe",
-      phoneNumber: '51 123456789'
+      phoneNumber: '51922936950'
     }} />
   )
 }

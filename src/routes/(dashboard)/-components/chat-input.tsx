@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea";
+import { send } from "@/lib/api/whatsapp";
 import { useT } from "@/lib/i18n/useT";
 
 export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
@@ -10,10 +11,13 @@ export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useT();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const message = input.trim();
-    if (message) {
+    const isSend = await send("51922936950", message)
+    console.log(message)
+    console.log(isSend)
+    if (isSend) {
       onSend?.(message)
       setInput("")
     }

@@ -1,44 +1,86 @@
-import { Plus } from "lucide-react"
-import { useState } from "react"
+// import axios from "axios"
+import { useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 import { ChatInput } from "./chat-input"
 import { ChatMessage } from "./chat-message"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { send } from "@/lib/api/whatsapp";
 import { initialsName, numberFormat } from "@/lib/format"
 import { useT } from "@/lib/i18n/useT"
 import type { MessageData, UserContact } from "@/types/chat"
 
+type ServerToClientEvents = {
+  newMessage: (msg: { from: string; text: string }) => void;
+};
 
-export const ChatCard = ({ messages, contact }: { messages?: MessageData[], contact: UserContact }) => {
-  const [chatMessages, setChatMessages] = useState(messages || [])
-  const hasMessages = chatMessages && chatMessages.length > 0
+type ClientToServerEvents = {
+  joinChat: (chatId: string) => void;
+};
 
-  const addMessage = (msg: string) => {
-    const newMessage: MessageData = { content: msg, isSent: true }
-    setChatMessages(prev => [...prev, newMessage])
-  }
+export const ChatCard = ({ contact }: { contact: UserContact }) => {
+  const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
+  const [messages, setMessages] = useState<MessageData[]>([]);
 
-  const renderedMessages = chatMessages?.map((m, i) => (
-    <ChatMessage key={i} content={m.content} isSent={m.isSent} />
-  ))
+  useEffect(() => {
+    const socket = io(import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3000/whatsapp");
+    
+    socketRef.current = socket;
+
+    // Unirse al chat usando el número de teléfono como chatId
+    socket.emit("joinChat", contact.phoneNumber);
+
+    // Escuchar mensajes entrantes
+    socket.on("newMessage", (msg) => {
+      // Solo agregar mensajes que vienen del contacto
+      if (msg.from === contact.phoneNumber) {
+        setMessages((prev) => [...prev, { content: msg.text, isSent: false }]);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [contact.phoneNumber]);
+
+  const handleSend = async (msg: string) => {
+    // Agregar mensaje localmente primero
+    const newMessage: MessageData = { content: msg, isSent: true };
+    setMessages((prev) => [...prev, newMessage]);
+
+    try {
+      // Enviar mensaje vía HTTP
+      void await send(contact.phoneNumber, msg)
+      // await axios.post(`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/whatsapp/send`, {
+      //   to: contact.phoneNumber,
+      //   message: msg,
+      // });
+    } catch (error) {
+      console.error("Error enviando mensaje:", error);
+      setMessages((prev) => prev.slice(0, -1));
+    } 
+  };
 
   return (
     <Card>
       <CardHeader>
         <ChatCardHeader name={contact?.fullName} phone={contact.phoneNumber} />
-        <CardAction><Plus /></CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {hasMessages ? renderedMessages : <ChatCardEmpty />}
+        {messages.length > 0 ? (
+          messages.map((m, i) => <ChatMessage key={i} content={m.content} isSent={m.isSent} />)
+        ) : (
+          <ChatCardEmpty />
+        )}
       </CardContent>
       <CardFooter>
-        <ChatInput onSend={addMessage} />
+        <ChatInput onSend={handleSend} />
       </CardFooter>
     </Card>
-  )
-}
+  );
+};;
 
 const ChatCardHeader = ({ name, phone }: { name?: string, phone: string }) => {
   const { t } = useT();
