@@ -1,4 +1,6 @@
-import { Link } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -10,62 +12,85 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Toaster } from "@/components/ui/sonner"
+import { login } from "@/lib/api/auth"
+import { useT } from "@/lib/i18n/useT";
 import { cn } from "@/lib/utils"
-import { Route as RouteChats } from '@/routes/(dashboard)/chats'
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+
+  const { t } = useT();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const isSigIn = await login({username, password});
+    if (isSigIn) {
+      navigate({ to: '/chats' });
+    } else {
+      toast('Error al iniciar sesion', {
+        description: "Nombre de usuario o contraseña incorrectos",
+      })
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      {/* toast */}
+      <Toaster position="top-right" />
+
+      {/* card */}
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>{t("login.title")}</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            {t("login.desc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("login.form.username.label")}</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="username"
+                  placeholder={t("login.form.username.placeholder")}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">{t("login.form.password.label")}</Label>
                   <a
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    {t("login.form.password.forgot")}
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required />
               </div>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
-                  <Link
-                    to={RouteChats.to}>
-                    Login
-                  </Link>
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
+                  {t("login.form.button")}
                 </Button>
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
+              {t("login.link.noaccount")}{" "}
+              <a href="/(auth)/register" className="underline underline-offset-4">
+                {t("login.link.register")}
               </a>
             </div>
           </form>

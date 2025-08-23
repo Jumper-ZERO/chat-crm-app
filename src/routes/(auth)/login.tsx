@@ -1,8 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 import { LoginForm } from '@/components/login-form'
+import { getUser } from '@/lib/api/auth'
+import { Route as ChatsRouter } from '@/routes/(dashboard)/chats'
 
 export const Route = createFileRoute('/(auth)/login')({
+  beforeLoad: async ({ context }) => {
+    const user = await getUser(context)
+    if (user) throw redirect({ to: ChatsRouter.to, replace: true });
+  },
   component: RouteComponent,
 })
 

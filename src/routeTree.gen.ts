@@ -9,58 +9,87 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as dashboardRouteRouteImport } from './routes/(dashboard)/route'
 import { Route as RouteRouteImport } from './routes/route'
 import { Route as dashboardChatsRouteImport } from './routes/(dashboard)/chats'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 
+const dashboardRouteRoute = dashboardRouteRouteImport.update({
+  id: '/(dashboard)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RouteRoute = RouteRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const dashboardChatsRoute = dashboardChatsRouteImport.update({
-  id: '/(dashboard)/chats',
+  id: '/chats',
   path: '/chats',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => dashboardRouteRoute,
 } as any)
 const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
+  id: '/(auth)/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof RouteRoute
+  '/': typeof dashboardRouteRouteWithChildren
+  '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof RouteRoute
+  '/': typeof dashboardRouteRouteWithChildren
+  '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof RouteRoute
+  '/(dashboard)': typeof dashboardRouteRouteWithChildren
+  '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(dashboard)/chats': typeof dashboardChatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/chats'
+  fullPaths: '/' | '/forgot-password' | '/login' | '/chats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/chats'
-  id: '__root__' | '/' | '/(auth)/login' | '/(dashboard)/chats'
+  to: '/' | '/forgot-password' | '/login' | '/chats'
+  id:
+    | '__root__'
+    | '/'
+    | '/(dashboard)'
+    | '/(auth)/forgot-password'
+    | '/(auth)/login'
+    | '/(dashboard)/chats'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   RouteRoute: typeof RouteRoute
+  dashboardRouteRoute: typeof dashboardRouteRouteWithChildren
+  authForgotPasswordRoute: typeof authForgotPasswordRoute
   authLoginRoute: typeof authLoginRoute
-  dashboardChatsRoute: typeof dashboardChatsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/(dashboard)': {
+      id: '/(dashboard)'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof dashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -73,7 +102,7 @@ declare module '@tanstack/react-router' {
       path: '/chats'
       fullPath: '/chats'
       preLoaderRoute: typeof dashboardChatsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof dashboardRouteRoute
     }
     '/(auth)/login': {
       id: '/(auth)/login'
@@ -82,13 +111,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/forgot-password': {
+      id: '/(auth)/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof authForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface dashboardRouteRouteChildren {
+  dashboardChatsRoute: typeof dashboardChatsRoute
+}
+
+const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
+  dashboardChatsRoute: dashboardChatsRoute,
+}
+
+const dashboardRouteRouteWithChildren = dashboardRouteRoute._addFileChildren(
+  dashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   RouteRoute: RouteRoute,
+  dashboardRouteRoute: dashboardRouteRouteWithChildren,
+  authForgotPasswordRoute: authForgotPasswordRoute,
   authLoginRoute: authLoginRoute,
-  dashboardChatsRoute: dashboardChatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
