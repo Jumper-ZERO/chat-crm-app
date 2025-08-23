@@ -1,4 +1,3 @@
-// import axios from "axios"
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -7,7 +6,6 @@ import { ChatMessage } from "./chat-message"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { send } from "@/lib/api/whatsapp";
 import { initialsName, numberFormat } from "@/lib/format"
 import { useT } from "@/lib/i18n/useT"
 import type { MessageData, UserContact } from "@/types/chat"
@@ -46,21 +44,8 @@ export const ChatCard = ({ contact }: { contact: UserContact }) => {
   }, [contact.phoneNumber]);
 
   const handleSend = async (msg: string) => {
-    // Agregar mensaje localmente primero
     const newMessage: MessageData = { content: msg, isSent: true };
     setMessages((prev) => [...prev, newMessage]);
-
-    try {
-      // Enviar mensaje vía HTTP
-      void await send(contact.phoneNumber, msg)
-      // await axios.post(`${import.meta.env.VITE_API_URL ?? "http://localhost:3000"}/whatsapp/send`, {
-      //   to: contact.phoneNumber,
-      //   message: msg,
-      // });
-    } catch (error) {
-      console.error("Error enviando mensaje:", error);
-      setMessages((prev) => prev.slice(0, -1));
-    } 
   };
 
   return (

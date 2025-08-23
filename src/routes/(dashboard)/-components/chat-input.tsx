@@ -15,8 +15,6 @@ export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
     e.preventDefault()
     const message = input.trim();
     const isSend = await send("51922936950", message)
-    console.log(message)
-    console.log(isSend)
     if (isSend) {
       onSend?.(message)
       setInput("")
@@ -40,7 +38,7 @@ export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
 
   return (
     <div className="flex items-center w-full">
-      <form className="relative w-full" onSubmit={handleSubmit}>
+      <form className="relative w-full">
         <Textarea
           id="message"
           ref={textareaRef}
@@ -52,7 +50,7 @@ export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
           className="w-full resize-none overflow-hidden rounded-md border px-4 py-2 text-base md:text-sm pr-10 h-9 min-h-[2.40rem] max-h-[12rem] leading-5"
         />
         <Button
-          type="submit"
+          type="button"
           size="icon"
           className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full size-6 p-0"
           disabled={!input.trim()}
