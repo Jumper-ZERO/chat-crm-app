@@ -15,6 +15,7 @@ import { Route as RouteRouteImport } from './routes/route'
 import { Route as dashboardChatsRouteImport } from './routes/(dashboard)/chats'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as dashboardSettingsRouteRouteImport } from './routes/(dashboard)/settings/route'
 
 const ConversacionesRoute = ConversacionesRouteImport.update({
   id: '/conversaciones',
@@ -45,10 +46,16 @@ const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const dashboardSettingsRouteRoute = dashboardSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => dashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof dashboardRouteRouteWithChildren
   '/conversaciones': typeof ConversacionesRoute
+  '/settings': typeof dashboardSettingsRouteRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof dashboardRouteRouteWithChildren
   '/conversaciones': typeof ConversacionesRoute
+  '/settings': typeof dashboardSettingsRouteRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/login': typeof authLoginRoute
   '/chats': typeof dashboardChatsRoute
@@ -65,20 +73,34 @@ export interface FileRoutesById {
   '/': typeof RouteRoute
   '/(dashboard)': typeof dashboardRouteRouteWithChildren
   '/conversaciones': typeof ConversacionesRoute
+  '/(dashboard)/settings': typeof dashboardSettingsRouteRoute
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/login': typeof authLoginRoute
   '/(dashboard)/chats': typeof dashboardChatsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/conversaciones' | '/forgot-password' | '/login' | '/chats'
+  fullPaths:
+    | '/'
+    | '/conversaciones'
+    | '/settings'
+    | '/forgot-password'
+    | '/login'
+    | '/chats'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conversaciones' | '/forgot-password' | '/login' | '/chats'
+  to:
+    | '/'
+    | '/conversaciones'
+    | '/settings'
+    | '/forgot-password'
+    | '/login'
+    | '/chats'
   id:
     | '__root__'
     | '/'
     | '/(dashboard)'
     | '/conversaciones'
+    | '/(dashboard)/settings'
     | '/(auth)/forgot-password'
     | '/(auth)/login'
     | '/(dashboard)/chats'
@@ -136,14 +158,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(dashboard)/settings': {
+      id: '/(dashboard)/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof dashboardSettingsRouteRouteImport
+      parentRoute: typeof dashboardRouteRoute
+    }
   }
 }
 
 interface dashboardRouteRouteChildren {
+  dashboardSettingsRouteRoute: typeof dashboardSettingsRouteRoute
   dashboardChatsRoute: typeof dashboardChatsRoute
 }
 
 const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
+  dashboardSettingsRouteRoute: dashboardSettingsRouteRoute,
   dashboardChatsRoute: dashboardChatsRoute,
 }
 
