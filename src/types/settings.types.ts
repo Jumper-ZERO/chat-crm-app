@@ -10,6 +10,8 @@ export interface SettingItem {
   name: string
   icon: LucideIcon
   component: React.ComponentType
+  title: string
+  description: string
 }
 
 export interface SettingGroup {
