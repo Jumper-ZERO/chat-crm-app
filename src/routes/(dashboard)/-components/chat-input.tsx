@@ -1,5 +1,6 @@
 import { ArrowUp } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,8 @@ export const ChatInput = ({ onSend }: { onSend?: (msg: string) => void }) => {
     if (isSend) {
       onSend?.(message)
       setInput("")
+    } else {
+      toast.error('Error en la comunicacion', { description: "Hay errores en la configuracion de whatsapp" });
     }
   }
 

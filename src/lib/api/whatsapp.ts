@@ -1,12 +1,24 @@
-import axios from 'axios'
+import axios, { type AxiosError } from 'axios';
 
 import { API_URL } from '@/lib/api/config'
+
+type ApiErrorWhatsapp = {
+  message: string,
+  statusCode: number
+}
 
 const whatsapp = axios.create({
   baseURL: API_URL + '/whatsapp',
   withCredentials: true
 })
 
-export async function send(to: string, message: string) {
-  return whatsapp.post('/send', { to, message }).then((res) => res.request.status === 201)
+export async function send(to: string, message: string): Promise<boolean> {
+  return whatsapp.post('/send', { to, message })
+    .then((res) => res.request.status === 201)
+    .catch((err) => {
+      const e = err as AxiosError
+      const data: ApiErrorWhatsapp = e.response?.data as ApiErrorWhatsapp;
+      console.error(data.message)
+      return false;
+    })
 }
