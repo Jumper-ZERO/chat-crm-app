@@ -44,8 +44,8 @@ export const configGroups: SettingGroup[] = [
       {
         id: 'whatsapp',
         name: 'WhatsApp',
-        title: 'General',
-        description: 'description general',
+        title: 'Configuración de WhatsApp',
+        description: 'Configura tu integración con WhatsApp Business API',
         icon: MessageCircle,
         component: WhatsappView
       },
