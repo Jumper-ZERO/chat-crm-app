@@ -1,22 +1,28 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-import { Toaster } from '@/components/ui/sonner'
-import { me } from '@/lib/api/auth'
-import { Route as LoginRoute } from '@/routes/(auth)/login'
+import { Toaster } from "@/components/ui/sonner";
+import { me } from "@/lib/api/auth";
+import { Route as LoginRoute } from "@/routes/(auth)/login";
+import { useUserStore } from "@/stores/userStore";
 
-export const Route = createFileRoute('/(dashboard)')({
+export const Route = createFileRoute("/(dashboard)")({
   beforeLoad: async ({ context }) => {
-    context.user = context?.user ?? await me()
-    if (!context.user) throw redirect({ to: LoginRoute.to, replace: true })
+    const user = context?.user ?? (await me());
+
+    if (!user) throw redirect({ to: LoginRoute.to, replace: true });
+
+    const { setUser } = useUserStore.getState();
+    setUser(user);
+    context.user = user;
   },
-  component: RouteComponent
-})
+  component: RouteComponent,
+});
 
 function RouteComponent() {
   return (
-    <div className='flex flex-col gap-6 p-6 md:p-10'>
+    <div className="flex flex-col gap-6 p-6 md:p-10">
       <Outlet />
-      <Toaster position='top-right' expand={true} richColors />
+      <Toaster position="top-right" expand={true} richColors />
     </div>
-  )
+  );
 }
