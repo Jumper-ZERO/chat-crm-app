@@ -1,9 +1,6 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm, type FieldErrors, type UseFormReturn } from "react-hook-form";
+import type { FieldErrors, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +9,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,137 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getConfig, updateConfig } from "@/lib/api/whatsapp-config.api";
+import { useWhatsAppConfig } from "@/hooks/use-whatsapp-config";
+import { type WhatsAppConfigSchema } from "@/schemas/whatsapp-config.schema";
 import { useUserStore } from "@/stores/userStore";
-import type { WhatsAppConfigFormValues } from "@/types/whatsapp.types";
-
-// Constants
-const WHATSAPP_API_VERSIONS = [
-  "v18.0",
-  "v19.0",
-  "v20.0",
-  "v21.0",
-  "v22.0",
-  "v23.0",
-] as const;
-
-const DEFAULT_API_VERSION = "v18.0";
-const PHONE_NUMBER_ID_LENGTH = 15;
-const BUSINESS_ID_LENGTH = 15;
-const MIN_TOKEN_LENGTH = 20;
-
-// Schema
-const whatsAppConfigSchema = z.object({
-  phoneNumberId: z
-    .string()
-    .min(
-      PHONE_NUMBER_ID_LENGTH,
-      "Debes ingresar el ID del número de WhatsApp valido"
-    )
-    .default(""),
-  businessId: z
-    .string()
-    .min(
-      BUSINESS_ID_LENGTH,
-      "Debes ingresar el ID de la cuenta de negocio valido"
-    )
-    .default(""),
-  accessToken: z
-    .string()
-    .min(
-      MIN_TOKEN_LENGTH,
-      `El token debe tener al menos ${MIN_TOKEN_LENGTH} caracteres`
-    )
-    .default(""),
-  verifyToken: z
-    .string()
-    .min(6, "El token debe tener al menos 6 caracteres")
-    .default(""),
-  apiVersion: z.string().default(DEFAULT_API_VERSION),
-  webhookUrl: z.url("Debe ser una URL válida").optional().or(z.literal("")),
-});
-
-// Types
-type WhatsAppConfigSchema = z.infer<typeof whatsAppConfigSchema>;
-
-// Default form values
-const getDefaultValues = (): WhatsAppConfigSchema => ({
-  businessId: "",
-  accessToken: "",
-  phoneNumberId: "",
-  webhookUrl: "",
-  verifyToken: "",
-  apiVersion: DEFAULT_API_VERSION,
-});
-
-// Custom hooks
-const useWhatsAppConfig = (businessId?: string) => {
-  const [isLoadingConfig, setIsLoadingConfig] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const form = useForm<WhatsAppConfigFormValues>({
-    resolver: zodResolver(whatsAppConfigSchema),
-    defaultValues: getDefaultValues(),
-  });
-
-  const { reset } = form;
-
-  useEffect(() => {
-    if (!businessId) return;
-
-    const loadConfig = async () => {
-      try {
-        const config = await getConfig(businessId);
-        setIsLoadingConfig(true);
-
-        if (config) {
-          reset({
-            phoneNumberId: config.phoneNumberId ?? "",
-            businessId: config.businessId ?? "",
-            accessToken: config.accessToken ?? "",
-            verifyToken: config.verifyToken ?? "",
-            apiVersion: config.apiVersion ?? DEFAULT_API_VERSION,
-            webhookUrl: config.webhookUrl ?? "",
-          });
-        }
-      } catch (error) {
-        console.error("Error loading WhatsApp configuration:", error);
-        toast.error("Error al cargar la configuración");
-      } finally {
-        setIsLoadingConfig(false);
-      }
-    };
-
-    loadConfig();
-  }, [businessId, reset]);
-
-  const handleSubmit = async (values: WhatsAppConfigFormValues) => {
-    setIsSaving(true);
-    try {
-      const updated = await updateConfig(values.businessId!, values);
-      await new Promise((r) => setTimeout(r, 1000)); // simula carga
-
-      toast.success("Configuración guardada correctamente 🎉");
-      console.log("[updateConfig] Configuración actualizada:", updated);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Hubo un problema al guardar la configuración";
-
-      console.error("[updateConfig] Error:", error);
-      toast.error(errorMessage);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return {
-    form,
-    handleSubmit,
-    isLoadingConfig,
-    isSaving,
-  };
-};
+import {
+  isApiVersion,
+  WHATSAPP_API_VERSIONS,
+  type WhatsAppConfigFormValues,
+} from "@/types/whatsapp.types";
 
 const onInvalidSubmit = (errors: FieldErrors<WhatsAppConfigFormValues>) => {
   Object.values(errors).forEach((error) => {
@@ -163,18 +36,18 @@ const onInvalidSubmit = (errors: FieldErrors<WhatsAppConfigFormValues>) => {
 // Component
 export const WhatsappView = () => {
   const user = useUserStore((state) => state.user);
-  const { form, handleSubmit, isSaving, isLoadingConfig } = useWhatsAppConfig(
+  const { form, onSubmit, isSaving, isLoading } = useWhatsAppConfig(
     user?.businessId
   );
 
-  return isLoadingConfig ? (
-    <div className="flex justify-center items-center h-140">
+  return isLoading ? (
+    <div className="flex justify-center items-center h-8/10">
       <Loader2Icon className="h-max w-6 animate-spin text-muted-foreground" />
     </div>
   ) : (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit, onInvalidSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, onInvalidSubmit)}
         className="space-y-6 flex flex-col justify-between h-8/10"
       >
         <div className="flex flex-col gap-5">
@@ -199,29 +72,35 @@ export const WhatsappView = () => {
               <FormField
                 control={form.control}
                 name="apiVersion"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Versión de API</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || DEFAULT_API_VERSION}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar versión" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {WHATSAPP_API_VERSIONS.map((version) => (
-                          <SelectItem key={version} value={version}>
-                            {version}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const handleSelectChange = (val?: string) => {
+                    if (!isApiVersion(val)) return;
+                    field.onChange(val);
+                  };
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Versión de API</FormLabel>
+                      <Select
+                        onValueChange={handleSelectChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar versión" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {WHATSAPP_API_VERSIONS.map((version) => (
+                            <SelectItem key={version} value={version}>
+                              {version}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  );
+                }}
               />
             </div>
           </div>
@@ -260,6 +139,7 @@ export const WhatsappView = () => {
           </div>
         </div>
 
+        {/* Buttons Actions */}
         <div className="flex justify-end">
           <Button type="submit" size="lg" disabled={isSaving}>
             {isSaving ? (

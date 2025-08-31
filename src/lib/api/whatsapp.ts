@@ -1,6 +1,6 @@
 import axios, { type AxiosError } from 'axios';
 
-import { API_URL } from '@/lib/api/config'
+import { API_URL } from '@/lib/api/index'
 
 type ApiErrorWhatsapp = {
   message: string,
