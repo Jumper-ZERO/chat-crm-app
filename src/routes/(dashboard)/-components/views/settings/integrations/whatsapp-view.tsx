@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTestConnection } from "@/hooks/use-test-connection";
 import { useWhatsAppConfig } from "@/hooks/use-whatsapp-config";
 import { type WhatsAppConfigSchema } from "@/schemas/whatsapp-config.schema";
 import { useUserStore } from "@/stores/userStore";
@@ -36,9 +37,11 @@ const onInvalidSubmit = (errors: FieldErrors<WhatsAppConfigFormValues>) => {
 // Component
 export const WhatsappView = () => {
   const user = useUserStore((state) => state.user);
+  const businessId = user?.businessId ?? "";
   const { form, onSubmit, isSaving, isLoading } = useWhatsAppConfig(
     user?.businessId
   );
+  const { mutate } = useTestConnection();
 
   return isLoading ? (
     <div className="flex justify-center items-center h-8/10">
@@ -140,7 +143,17 @@ export const WhatsappView = () => {
         </div>
 
         {/* Buttons Actions */}
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          <Button
+            type="button"
+            size="lg"
+            variant="secondary"
+            onClick={() => mutate(businessId)}
+            // disabled={loading}
+            style={{ padding: "0.5rem 1rem" }}
+          >
+            Test
+          </Button>
           <Button type="submit" size="lg" disabled={isSaving}>
             {isSaving ? (
               <>

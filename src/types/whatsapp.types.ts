@@ -37,3 +37,10 @@ export interface WhatsAppConfig extends WhatsAppConfigFormValues {
   createdAt?: Date;
   updatedAt?: Date;
 };
+
+export type TestConnectionResult = {
+  success?: boolean;
+  statusCode?: number;
+  error?: string;
+  message?: string;
+}
