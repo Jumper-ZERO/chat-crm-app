@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { columns } from "./columns";
+import { columns } from "./contact-table-columns";
 
 import { DataTableWithResizableColumns } from "@/components/table/data-table-with-resizable-columns";
 import { useContacts } from "@/hooks/use-contacts";

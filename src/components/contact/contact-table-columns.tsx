@@ -8,16 +8,16 @@ import type { Contact } from "@/models/contact.model";
 export const columns: ColumnDef<Contact>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Nombre",
   },
   {
     accessorKey: "phone",
-    header: "Phone",
+    header: "Celular",
     cell: ({ row }) => formatPhone(row.getValue("phone")),
   },
   {
     accessorKey: "customerStatus",
-    header: "Status",
+    header: "Estado",
     cell: ({ row }) => {
       const status = row.getValue(
         "customerStatus"
@@ -37,11 +37,11 @@ export const columns: ColumnDef<Contact>[] = [
   },
   {
     accessorKey: "source",
-    header: "Source",
+    header: "Origen",
   },
   {
     accessorKey: "assignedTo.username",
-    header: "Asignacion",
+    header: "Asignado",
     cell: ({ row }) => row.original.assignedTo?.username ?? "Unassigned",
   },
   {
