@@ -216,12 +216,13 @@ export function DataTableWithResizableColumns<TData, TValue>({
         </Pagination>
       )}
 
-      {showPagination && (
+      {/** This is for debug data from pagination */}
+      {/* {showPagination && (
         <p className="text-muted-foreground mt-4 text-center text-sm">
           Page {meta?.currentPage} of {meta?.totalPages} · {meta?.itemsPerPage}{" "}
           per page · {meta?.totalItems} total
         </p>
-      )}
+      )} */}
     </div>
   );
 }
