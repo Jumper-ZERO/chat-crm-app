@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { ContactDialog } from "@/components/contact/contact-dialog";
-import { ContactTable } from "@/components/contact/contact-table";
-import InputSearchLoader from "@/components/input-search-loader";
+// import { ContactTable } from "@/components/contact/contact-table";
+import { ContactTable } from "@/components/contact/data-table/contact-table";
+import { DataTableDemo } from "@/components/data-table-demo";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/(dashboard)/contacts")({
@@ -13,9 +13,8 @@ function RouteComponent() {
   return (
     <Card className="h-full">
       <CardContent>
-        <InputSearchLoader />
         <ContactTable />
-        <ContactDialog />
+        <DataTableDemo />
       </CardContent>
     </Card>
   );

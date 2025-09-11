@@ -16,15 +16,27 @@ type PaginatedResponse<T> = {
 
 const contacts = client("/contacts");
 
+// export const getContacts = async (
+//   page: number = 1,
+//   limit: number = 10
+// ): Promise<PaginatedResponse<Contact>> => {
+//   const { data } = await contacts.get<PaginatedResponse<Contact>>(
+//     `/?page=${page}&limit=${limit}`
+//   )
+//   return data
+// }
+
 export const getContacts = async (
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  filters: Record<string, unknown> = {}
 ): Promise<PaginatedResponse<Contact>> => {
-  const { data } = await contacts.get<PaginatedResponse<Contact>>(
-    `/?page=${page}&limit=${limit}`
-  )
+  const { data } = await contacts.get<PaginatedResponse<Contact>>("/", {
+    params: { page, limit, ...filters },
+  })
   return data
 }
+
 
 export const saveContact = async (data: object) => {
   try {

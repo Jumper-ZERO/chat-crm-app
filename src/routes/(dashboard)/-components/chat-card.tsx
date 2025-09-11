@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { ChatInput } from "./chat-input"
-import { ChatMessage } from "./chat-message"
+import { ChatInput } from "./chat-input";
+import { ChatMessage } from "./chat-message";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { initialsName, numberFormat } from "@/lib/format"
-import { useT } from "@/lib/i18n/useT"
-import type { MessageData, UserContact } from "@/types/chat"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { initialsName, numberFormat } from "@/lib/format-chat";
+import { useT } from "@/lib/i18n/useT";
+import type { MessageData, UserContact } from "@/types/chat";
 
 type ServerToClientEvents = {
   newMessage: (msg: { from: string; text: string }) => void;
@@ -19,12 +25,17 @@ type ClientToServerEvents = {
 };
 
 export const ChatCard = ({ contact }: { contact: UserContact }) => {
-  const socketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
+  const socketRef = useRef<Socket<
+    ServerToClientEvents,
+    ClientToServerEvents
+  > | null>(null);
   const [messages, setMessages] = useState<MessageData[]>([]);
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3000/whatsapp");
-    
+    const socket = io(
+      import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3000/whatsapp"
+    );
+
     socketRef.current = socket;
 
     // Unirse al chat usando el número de teléfono como chatId
@@ -55,7 +66,9 @@ export const ChatCard = ({ contact }: { contact: UserContact }) => {
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {messages.length > 0 ? (
-          messages.map((m, i) => <ChatMessage key={i} content={m.content} isSent={m.isSent} />)
+          messages.map((m, i) => (
+            <ChatMessage key={i} content={m.content} isSent={m.isSent} />
+          ))
         ) : (
           <ChatCardEmpty />
         )}
@@ -65,9 +78,9 @@ export const ChatCard = ({ contact }: { contact: UserContact }) => {
       </CardFooter>
     </Card>
   );
-};;
+};
 
-const ChatCardHeader = ({ name, phone }: { name?: string, phone: string }) => {
+const ChatCardHeader = ({ name, phone }: { name?: string; phone: string }) => {
   const { t } = useT();
   const initials = initialsName(name || "");
   const phoneFormat = numberFormat(phone);
@@ -82,8 +95,8 @@ const ChatCardHeader = ({ name, phone }: { name?: string, phone: string }) => {
         <p className="text-sm text-muted-foreground">{phoneFormat}</p>
       </CardTitle>
     </div>
-  )
-}
+  );
+};
 
 const ChatCardEmpty = () => {
   const { t } = useT();
@@ -93,5 +106,5 @@ const ChatCardEmpty = () => {
         {t("chat.empty")}
       </h3>
     </div>
-  )
-}
+  );
+};
