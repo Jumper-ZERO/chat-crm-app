@@ -7,7 +7,7 @@ export const sourceContactValues = ["whatsapp", "email", "manual", "imported"] a
 export type SourceContact = typeof sourceContactValues[number];
 
 export type Contact = {
-  id?: string
+  id: string
   name: string
   phone: string
   customerStatus: CustomerStatus
