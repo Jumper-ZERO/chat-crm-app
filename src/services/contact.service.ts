@@ -2,6 +2,7 @@ import { AxiosError } from "axios";
 
 import { client } from "@/lib/http";
 import type { Contact } from "@/models/contact.model";
+import type { ContactQuery } from "@/models/contact.query";
 
 type PaginatedResponse<T> = {
   items: T[]
@@ -16,27 +17,12 @@ type PaginatedResponse<T> = {
 
 const contacts = client("/contacts");
 
-// export const getContacts = async (
-//   page: number = 1,
-//   limit: number = 10
-// ): Promise<PaginatedResponse<Contact>> => {
-//   const { data } = await contacts.get<PaginatedResponse<Contact>>(
-//     `/?page=${page}&limit=${limit}`
-//   )
-//   return data
-// }
-
 export const getContacts = async (
-  page: number = 1,
-  limit: number = 10,
-  filters: Record<string, unknown> = {}
+  params: ContactQuery
 ): Promise<PaginatedResponse<Contact>> => {
-  const { data } = await contacts.get<PaginatedResponse<Contact>>("/", {
-    params: { page, limit, ...filters },
-  })
-  return data
-}
-
+  const { data } = await contacts.get<PaginatedResponse<Contact>>("", { params });
+  return data;
+};
 
 export const saveContact = async (data: object) => {
   try {

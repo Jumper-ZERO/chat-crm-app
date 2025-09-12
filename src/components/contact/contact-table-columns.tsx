@@ -46,6 +46,7 @@ export const columns: ColumnDef<Contact>[] = [
     enableHiding: false,
   },
   {
+    id: "name",
     accessorKey: "name",
     header: ({ column }: { column: Column<Contact, unknown> }) => (
       <DataTableColumnHeader column={column} title="Nombre" />
@@ -58,6 +59,7 @@ export const columns: ColumnDef<Contact>[] = [
     enableColumnFilter: true,
   },
   {
+    id: "phone",
     accessorKey: "phone",
     header: ({ column }: { column: Column<Contact, unknown> }) => (
       <DataTableColumnHeader column={column} title="Telefono" />
@@ -68,9 +70,10 @@ export const columns: ColumnDef<Contact>[] = [
       placeholder: "Buscar celular...",
       variant: "text",
     },
+    enableColumnFilter: true,
   },
   {
-    id: "customer.status",
+    id: "customerStatus",
     accessorKey: "customerStatus",
     header: ({ column }: { column: Column<Contact, unknown> }) => (
       <DataTableColumnHeader column={column} title="Estado" />
@@ -120,23 +123,31 @@ export const columns: ColumnDef<Contact>[] = [
     enableColumnFilter: true,
   },
   {
+    id: "assignedTo",
     accessorKey: "assignedTo.username",
     header: ({ column }: { column: Column<Contact, unknown> }) => (
-      <DataTableColumnHeader column={column} title="Asignado" />
+      <DataTableColumnHeader
+        column={column}
+        key={column.getIndex()}
+        title="Asignado"
+      />
     ),
-    cell: ({ row }) => row.original.assignedTo?.username ?? "Unassigned",
+    cell: ({ row }) => row.original?.assignedTo?.username ?? "Unassigned",
     meta: {
       label: "Asignado",
       variant: "text",
     },
   },
   {
+    id: "createdAt",
     accessorKey: "createdAt",
     header: ({ column }: { column: Column<Contact, unknown> }) => (
       <DataTableColumnHeader column={column} title="Creación" />
     ),
-    cell: ({ row }) =>
-      dayjs(row.getValue("createdAt")).locale("es").format("MMMM D, YYYY"),
+    cell: ({ cell }) =>
+      dayjs(cell.getValue<Contact["createdAt"]>())
+        .locale("es")
+        .format("MMMM D, YYYY"),
   },
   {
     id: "actions",
