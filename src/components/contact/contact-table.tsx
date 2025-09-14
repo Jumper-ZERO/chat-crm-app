@@ -1,29 +1,73 @@
-import { useState } from "react";
+// src/components/contact/contact-table.tsx
+import type { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
 
-import { columns } from "./contact-table-columns";
+import { useColumns } from "./contact-table-columns";
 
-import { DataTableWithResizableColumns } from "@/components/table/data-table-with-resizable-columns";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useContacts } from "@/hooks/use-contacts";
+import { useDataTable } from "@/hooks/use-data-table";
+import type { Contact } from "@/models/contact.model";
 
-export const ContactTable = () => {
-  const [page, setPage] = useState(1);
-  const { data, isLoading } = useContacts(page, 10);
-  if (isLoading) return <p>Loading...</p>;
+export function ContactTable() {
+  const columns = useColumns();
+  const { data, isLoading } = useContacts();
+  const items = useMemo(() => data?.items ?? [], [data?.items]);
 
   return (
-    <DataTableWithResizableColumns
-      columns={columns}
-      data={data?.items ?? []}
-      meta={
-        data?.meta ?? {
-          totalItems: 0,
-          itemCount: 0,
-          itemsPerPage: 10,
-          totalPages: 0,
-          currentPage: page,
-        }
-      }
-      onPageChange={setPage}
-    />
+    <div className="data-table-container">
+      {isLoading ? (
+        <ContactTableSkeleton columns={columns} />
+      ) : (
+        <ContactTableContent
+          data={items}
+          columns={columns}
+          pageCount={data?.meta?.totalPages ?? 0}
+        />
+      )}
+    </div>
+  );
+}
+
+// Skeleton loading
+const ContactTableSkeleton = ({
+  columns,
+}: {
+  columns: ColumnDef<Contact>[];
+}) => (
+  <DataTableSkeleton
+    columnCount={columns.length}
+    filterCount={2}
+    cellWidths={Array(columns.length).fill("2rem")}
+    shrinkZero
+  />
+);
+
+// Principal Table
+const ContactTableContent = ({
+  data,
+  columns,
+  pageCount,
+  columnPinning = { right: ["actions"] }, // escaling option
+}: {
+  data: Contact[];
+  columns: ColumnDef<Contact>[];
+  pageCount: number;
+  columnPinning?: { left?: string[]; right?: string[] };
+}) => {
+  const { table } = useDataTable({
+    data,
+    columns,
+    pageCount,
+    initialState: { columnPinning },
+    getRowId: (row: Contact) => row.id.toString(),
+  });
+
+  return (
+    <DataTable table={table}>
+      <DataTableToolbar table={table} />
+    </DataTable>
   );
 };
