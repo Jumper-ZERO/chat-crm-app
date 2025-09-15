@@ -1,6 +1,16 @@
-"use client"
-import * as React from "react"
-import {Command, MessageCircleMore, ArrowLeftRight, Send,Users, Bell, CircleUserRound, MessageSquareText } from "lucide-react"
+"use client";
+import {
+  Command,
+  MessageCircleMore,
+  ArrowLeftRight,
+  Send,
+  Users,
+  Bell,
+  CircleUserRound,
+  MessageSquareText,
+} from "lucide-react";
+import * as React from "react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -11,47 +21,46 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSpace,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 const data = [
-    {
-      title: "Conversacion",
-      url: "#",
-      icon: MessageCircleMore ,
-    },
-    {
-      title: "Conexiones",
-      url: "#",
-      icon: ArrowLeftRight ,
-    },
-    {
-      title: "Contactos",
-      url: "#",
-      icon: Send,
-    },
-    {
-      title: "Usuarios",
-      url: "#",
-      icon: Users,
-    },
-    {
-      title: "Notificaciones",
-      url: "#",
-      icon: Bell,
-    },
-    {
-      title: "Mensajes",
-      url: "#",
-      icon: MessageSquareText,
-    },
-    {
-      title: "Yo",
-      url: "#",
-      icon: CircleUserRound,
-    }
-    
-]
+  {
+    title: "Conversacion",
+    url: "#",
+    icon: MessageCircleMore,
+  },
+  {
+    title: "Conexiones",
+    url: "#",
+    icon: ArrowLeftRight,
+  },
+  {
+    title: "Contactos",
+    url: "#",
+    icon: Send,
+  },
+  {
+    title: "Usuarios",
+    url: "#",
+    icon: Users,
+  },
+  {
+    title: "Notificaciones",
+    url: "#",
+    icon: Bell,
+  },
+  {
+    title: "Mensajes",
+    url: "#",
+    icon: MessageSquareText,
+  },
+  {
+    title: "Yo",
+    url: "#",
+    icon: CircleUserRound,
+  },
+];
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    // const [activeItem, setActiveItem] = React.useState(data)
+  // const [activeItem, setActiveItem] = React.useState(data)
   return (
     <Sidebar
       collapsible="icon"
@@ -83,7 +92,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {data.map((item,i) => (
+                {data.map((item, i) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={{
@@ -92,7 +101,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }}
                     >
                       <a href={item.url} className="flex items-center gap-2">
-                        <item.icon className="size-4" /> 
+                        <item.icon className="size-4" />
                         <span>{item.title}</span>
                       </a>
                     </SidebarMenuButton>
@@ -105,5 +114,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarContent>
       </Sidebar>
     </Sidebar>
-  )
+  );
 }
