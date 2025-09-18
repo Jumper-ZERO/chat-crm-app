@@ -1,5 +1,5 @@
-import { ArrowUp } from "lucide-react"
 import React, { useEffect, useRef, useState } from "react";
+import { ArrowUp } from "lucide-react"
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button"
