@@ -1,4 +1,3 @@
-import { IntegrationsForm } from '@/features/settings/integrations/integrations-form'
 import { ContentSection } from '../components/content-section'
 
 export function SettingsIntegrations() {
@@ -7,7 +6,7 @@ export function SettingsIntegrations() {
       title='Integrations'
       desc='Customize the integrations of the app.'
     >
-      <IntegrationsForm />
+      <h1>hola</h1>
     </ContentSection>
   )
 }

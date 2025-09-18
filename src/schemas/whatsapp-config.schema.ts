@@ -16,6 +16,12 @@ export const schema = z.object({
   webhookUrl: z.url().optional().or(z.literal("")),
 });
 
+
+// Guard
+export type ApiVersion = typeof versions[number];
+export const isApiVersion = (v: unknown): v is ApiVersion =>
+  typeof v === "string" && versions.includes(v as ApiVersion);
+
 // Types
 export type WhatsAppConfig = z.infer<typeof schema>;
 export type WhatsAppConfigInput = Partial<WhatsAppConfig>;

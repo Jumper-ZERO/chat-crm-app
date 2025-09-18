@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   defaultValues,
+  isApiVersion,
   schema,
   versions,
   type WhatsAppConfigInput,
@@ -99,25 +100,36 @@ export const WhatsappForm = () => {
               <FormField
                 control={form.control}
                 name='apiVersion'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Versión de API</FormLabel>
-                    <Select value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={'vXX.X'} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {versions.map((version) => (
-                          <SelectItem key={version} value={version}>
-                            {version}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const handleSelectChange = (val?: string) => {
+                    if (!isApiVersion(val)) return
+                    field.onChange(val)
+                  }
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Versión de API</FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={handleSelectChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={'vXX.X'} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {versions.map((version) => (
+                            <SelectItem key={version} value={version}>
+                              {version}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )
+                }}
               />
             </div>
           </div>
