@@ -13,9 +13,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Toaster } from "@/components/ui/sonner"
-import { login } from "@/lib/api/auth"
 import { useT } from "@/lib/i18n/useT";
 import { cn } from "@/lib/utils"
+import { login } from "@/services/auth.service"
 
 export function LoginForm({
   className,

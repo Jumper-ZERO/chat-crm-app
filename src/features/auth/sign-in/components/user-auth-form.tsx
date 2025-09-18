@@ -61,8 +61,6 @@ export function UserAuthForm({
         navigate({ to: "/" })
         return `Welcome back, ${values.username}!`
       },
-      error: (err) =>
-        err.response?.data?.message || "Login failed",
     })
   }
 

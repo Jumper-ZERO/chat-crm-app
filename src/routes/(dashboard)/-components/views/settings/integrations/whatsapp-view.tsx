@@ -1,5 +1,4 @@
 import { Loader2Icon } from "lucide-react";
-import type { FieldErrors, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,12 +20,13 @@ import {
 import { useTestConnection } from "@/hooks/use-test-connection";
 import { useWhatsAppConfig } from "@/hooks/use-whatsapp-config";
 import { type WhatsAppConfigSchema } from "@/schemas/whatsapp-config.schema";
-import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/auth-store";
 import {
   isApiVersion,
   WHATSAPP_API_VERSIONS,
   type WhatsAppConfigFormValues,
 } from "@/types/whatsapp.types";
+import type { FieldErrors, UseFormReturn } from "react-hook-form";
 
 const onInvalidSubmit = (errors: FieldErrors<WhatsAppConfigFormValues>) => {
   Object.values(errors).forEach((error) => {
@@ -36,7 +36,7 @@ const onInvalidSubmit = (errors: FieldErrors<WhatsAppConfigFormValues>) => {
 
 // Component
 export const WhatsappView = () => {
-  const user = useUserStore((state) => state.user);
+  const user = useAuthStore().auth.user;
   const businessId = user?.businessId ?? "";
   const { form, onSubmit, isSaving, isLoading } = useWhatsAppConfig(
     user?.businessId

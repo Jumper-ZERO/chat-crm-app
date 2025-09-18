@@ -1,5 +1,3 @@
-import { AxiosError } from "axios";
-
 import { client } from "@/lib/http";
 import type { Contact } from "@/models/contact.model";
 import type { Pagination } from "@/models/types";
@@ -12,10 +10,5 @@ export const getContacts = async (params: unknown): Promise<Pagination<Contact>>
 };
 
 export const saveContact = async (data: object) => {
-  try {
-    return await contacts.post("", data);
-  } catch (e: unknown) {
-    const err = e as AxiosError;
-    console.log(err);
-  }
+  return await contacts.post("", data);
 }
