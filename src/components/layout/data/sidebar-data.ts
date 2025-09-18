@@ -21,11 +21,12 @@ import {
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
+  Plug,
+  MessageSquare,
 } from 'lucide-react'
 
-import { type SidebarData } from '../types'
-
 import { ClerkLogo } from '@/assets/clerk-logo'
+import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
   user: {
@@ -193,6 +194,17 @@ export const sidebarData: SidebarData = {
               title: 'Display',
               url: '/settings/display',
               icon: Monitor,
+            },
+            {
+              title: 'Integrations',
+              icon: Plug,
+              items: [
+                {
+                  title: 'WhatsApp',
+                  url: '/settings/integrations/whatsapp',
+                  icon: MessageSquare,
+                },
+              ],
             },
           ],
         },

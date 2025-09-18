@@ -24,11 +24,11 @@ type NavLink = BaseNavItem & {
 }
 
 type NavCollapsible = BaseNavItem & {
-  items: (BaseNavItem & { url: LinkProps['to'] | (string & {}) })[]
-  url?: never
+  items: NavItem[]
+  url: string,
 }
 
-type NavItem = NavCollapsible | NavLink
+type NavItem = NavLink | NavCollapsible
 
 type NavGroup = {
   title: string

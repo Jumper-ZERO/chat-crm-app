@@ -1,12 +1,12 @@
 import { Outlet } from '@tanstack/react-router'
-import { Monitor, Bell, Palette, Wrench, UserCog } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
+import { Monitor, Bell, Palette, Wrench, UserCog, Plug, MessageSquare } from 'lucide-react'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { Separator } from '@/components/ui/separator'
 import { SidebarNav } from './components/sidebar-nav'
 
 const sidebarNavItems = [
@@ -35,6 +35,18 @@ const sidebarNavItems = [
     href: '/settings/display',
     icon: <Monitor size={18} />,
   },
+  {
+    title: 'Integrations',
+    href: '/settings/integrations',
+    icon: <Plug size={18} />,
+    children: [
+      {
+        title: 'WhatsApp',
+        href: '/settings/integrations/whatsapp',
+        icon: <MessageSquare size={16} />,
+      },
+    ],
+  },
 ]
 
 export function Settings() {
@@ -56,7 +68,7 @@ export function Settings() {
             Settings
           </h1>
           <p className='text-muted-foreground'>
-            Manage your account settings and set e-mail preferences.
+            Manage your account settings and integrations.
           </p>
         </div>
         <Separator className='my-4 lg:my-6' />

@@ -19,14 +19,15 @@ import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as dashboardChatRouteImport } from './routes/(dashboard)/chat'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
-import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as dashboardSettingsRouteRouteImport } from './routes/(dashboard)/settings/route'
 import { Route as dashboardContactsRouteRouteImport } from './routes/(dashboard)/contacts/route'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as dashboardContactsIndexRouteImport } from './routes/(dashboard)/contacts/index'
+import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings/integrations'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -76,16 +77,17 @@ const authSignInRoute = authSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authLoginRoute = authLoginRouteImport.update({
-  id: '/(auth)/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   id: '/(auth)/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSettingsRouteRoute =
+  AuthenticatedSettingsRouteRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const dashboardSettingsRouteRoute = dashboardSettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -116,13 +118,18 @@ const dashboardContactsIndexRoute = dashboardContactsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => dashboardContactsRouteRoute,
 } as any)
+const AuthenticatedSettingsIntegrationsRoute =
+  AuthenticatedSettingsIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/contacts': typeof dashboardContactsRouteRouteWithChildren
-  '/settings': typeof dashboardSettingsRouteRoute
+  '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
-  '/login': typeof authLoginRoute
   '/sign-in': typeof authSignInRoute
   '/chat': typeof dashboardChatRoute
   '/401': typeof errors401Route
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
   '/contacts/': typeof dashboardContactsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
@@ -137,9 +145,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
-  '/settings': typeof dashboardSettingsRouteRoute
+  '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
-  '/login': typeof authLoginRoute
   '/sign-in': typeof authSignInRoute
   '/chat': typeof dashboardChatRoute
   '/401': typeof errors401Route
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
   '/contacts': typeof dashboardContactsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
@@ -158,8 +166,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/(dashboard)/contacts': typeof dashboardContactsRouteRouteWithChildren
   '/(dashboard)/settings': typeof dashboardSettingsRouteRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
-  '/(auth)/login': typeof authLoginRoute
   '/(auth)/sign-in': typeof authSignInRoute
   '/(dashboard)/chat': typeof dashboardChatRoute
   '/(errors)/401': typeof errors401Route
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
   '/(dashboard)/contacts/': typeof dashboardContactsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
@@ -180,7 +189,6 @@ export interface FileRouteTypes {
     | '/contacts'
     | '/settings'
     | '/forgot-password'
-    | '/login'
     | '/sign-in'
     | '/chat'
     | '/401'
@@ -188,6 +196,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/settings/integrations'
     | '/contacts/'
     | '/chats'
     | '/tasks'
@@ -197,7 +206,6 @@ export interface FileRouteTypes {
     | '/'
     | '/settings'
     | '/forgot-password'
-    | '/login'
     | '/sign-in'
     | '/chat'
     | '/401'
@@ -205,6 +213,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/settings/integrations'
     | '/contacts'
     | '/chats'
     | '/tasks'
@@ -215,8 +224,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/(dashboard)/contacts'
     | '/(dashboard)/settings'
+    | '/_authenticated/settings'
     | '/(auth)/forgot-password'
-    | '/(auth)/login'
     | '/(auth)/sign-in'
     | '/(dashboard)/chat'
     | '/(errors)/401'
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
+    | '/_authenticated/settings/integrations'
     | '/(dashboard)/contacts/'
     | '/_authenticated/chats/'
     | '/_authenticated/tasks/'
@@ -235,7 +245,6 @@ export interface RootRouteChildren {
   dashboardRouteRoute: typeof dashboardRouteRouteWithChildren
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   authForgotPasswordRoute: typeof authForgotPasswordRoute
-  authLoginRoute: typeof authLoginRoute
   authSignInRoute: typeof authSignInRoute
   errors401Route: typeof errors401Route
   errors403Route: typeof errors403Route
@@ -316,19 +325,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authSignInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(auth)/forgot-password': {
       id: '/(auth)/forgot-password'
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(dashboard)/settings': {
       id: '/(dashboard)/settings'
@@ -372,6 +381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof dashboardContactsIndexRouteImport
       parentRoute: typeof dashboardContactsRouteRoute
     }
+    '/_authenticated/settings/integrations': {
+      id: '/_authenticated/settings/integrations'
+      path: '/integrations'
+      fullPath: '/settings/integrations'
+      preLoaderRoute: typeof AuthenticatedSettingsIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
   }
 }
 
@@ -405,7 +421,23 @@ const dashboardRouteRouteWithChildren = dashboardRouteRoute._addFileChildren(
   dashboardRouteRouteChildren,
 )
 
+interface AuthenticatedSettingsRouteRouteChildren {
+  AuthenticatedSettingsIntegrationsRoute: typeof AuthenticatedSettingsIntegrationsRoute
+}
+
+const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteChildren =
+  {
+    AuthenticatedSettingsIntegrationsRoute:
+      AuthenticatedSettingsIntegrationsRoute,
+  }
+
+const AuthenticatedSettingsRouteRouteWithChildren =
+  AuthenticatedSettingsRouteRoute._addFileChildren(
+    AuthenticatedSettingsRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
@@ -413,6 +445,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
@@ -426,7 +459,6 @@ const rootRouteChildren: RootRouteChildren = {
   dashboardRouteRoute: dashboardRouteRouteWithChildren,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   authForgotPasswordRoute: authForgotPasswordRoute,
-  authLoginRoute: authLoginRoute,
   authSignInRoute: authSignInRoute,
   errors401Route: errors401Route,
   errors403Route: errors403Route,
