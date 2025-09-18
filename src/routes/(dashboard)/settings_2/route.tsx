@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useSettingDialog } from "@/hooks/useSettingDialog";
 import { SettingsDialog } from "@/routes/(dashboard)/-components/settings/settings-dialog";
 
-export const Route = createFileRoute("/(dashboard)/settings")({
+export const Route = createFileRoute("/(dashboard)/settings_2")({
   component: RouteComponent,
 });
 

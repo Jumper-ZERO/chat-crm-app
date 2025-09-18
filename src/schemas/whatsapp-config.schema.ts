@@ -1,43 +1,31 @@
 import { z } from "zod";
 
-import {
-  BUSINESS_ID_LENGTH,
-  MIN_TOKEN_LENGTH,
-  PHONE_NUMBER_ID_LENGTH,
-  WHATSAPP_API_VERSIONS
-} from "@/types/whatsapp.types";
+export const versions = ["v18.0", "v19.0", "v20.0", "v21.0", "v22.0", "v23.0"] as const;
+export const defaultVersion = versions[4];
+const businessIdLength = 15;
+const phoneNumberIdLength = 15;
+const tokenLength = 15;
 
 // Schema
 export const schema = z.object({
-  phoneNumberId: z
-    .string()
-    .min(PHONE_NUMBER_ID_LENGTH, "Debes ingresar el ID del número de WhatsApp valido")
-    .default(""),
-  businessId: z
-    .string()
-    .min(BUSINESS_ID_LENGTH, "Debes ingresar el ID de la cuenta de negocio valido")
-    .default(""),
-  accessToken: z
-    .string()
-    .min(MIN_TOKEN_LENGTH, `El token debe tener al menos ${MIN_TOKEN_LENGTH} caracteres`)
-    .default(""),
-  verifyToken: z
-    .string()
-    .min(6, "El token debe tener al menos 6 caracteres")
-    .default(""),
-  apiVersion: z.enum(WHATSAPP_API_VERSIONS).default("v18.0"),
-  webhookUrl: z.url("Debe ser una URL válida").optional().or(z.literal("")),
+  businessId: z.string().min(businessIdLength).default(""),
+  phoneNumberId: z.string().min(phoneNumberIdLength).or(z.literal("")).optional(),
+  apiVersion: z.enum(versions).default(defaultVersion),
+  accessToken: z.string().min(tokenLength).or(z.literal("")).optional(),
+  webhookVerifyToken: z.string().min(6).or(z.literal("")).optional(),
+  webhookUrl: z.url().optional().or(z.literal("")),
 });
 
 // Types
-export type WhatsAppConfigSchema = z.infer<typeof schema>;
+export type WhatsAppConfig = z.infer<typeof schema>;
+export type WhatsAppConfigInput = Partial<WhatsAppConfig>;
 
 // Default form values
-export const defaultValues: WhatsAppConfigSchema = {
+export const defaultValues: WhatsAppConfig = {
   businessId: "",
   accessToken: "",
   phoneNumberId: "",
   webhookUrl: "",
-  verifyToken: "",
+  webhookVerifyToken: "",
   apiVersion: "v18.0",
 };
