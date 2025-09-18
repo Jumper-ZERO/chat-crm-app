@@ -25,7 +25,7 @@ type NavLink = BaseNavItem & {
 
 type NavCollapsible = BaseNavItem & {
   items: NavItem[]
-  url: string,
+  url?: LinkProps['to'] | (string & {})
 }
 
 type NavItem = NavLink | NavCollapsible
