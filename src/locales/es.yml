@@ -1,3 +1,5 @@
+app:
+  name: "CRM Business App"
 chat:
   user:
     unknown: "Usuario desconocido"
@@ -16,6 +18,29 @@ login:
       label: "Contraseña"
       forgot: "¿Olvidaste tu contraseña?"
     button: "Iniciar sesión"
+  link:
+    register: "Regístrate"
+    noaccount: "¿No tienes una cuenta?"
+
+
+sign-in:
+  title: "Inicia sesión"
+  desc: "Ingresa tu nombre de usuario y contraseña para acceder a tu cuenta."
+  form:
+    username:
+      label: "Nombre de usuario"
+      placeholder: "Jeremi"
+    password:
+      label: "Contraseña"
+      forgot: "¿Olvidaste tu contraseña?"
+    button:
+      submit: "Entrar"
+    footer:
+      msg: "Al hacer clic en"
+      accept: ", aceptas los "
+      and: "y la"
+      term: "Términos de servicio"
+      policy: "Política de privacidad"
   link:
     register: "Regístrate"
     noaccount: "¿No tienes una cuenta?"

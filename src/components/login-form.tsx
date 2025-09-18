@@ -1,5 +1,5 @@
-import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -59,7 +59,7 @@ export function LoginForm({
                 <Label htmlFor="email">{t("login.form.username.label")}</Label>
                 <Input
                   id="username"
-                  placeholder={t("login.form.username.placeholder")}
+                  placeholder={t("sign-in.form.username.placeholder")}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required

@@ -1,22 +1,24 @@
+import { StrictMode } from "react";
+import { AxiosError } from "axios";
+import ReactDOM from "react-dom/client";
 import {
   QueryCache,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { AxiosError } from "axios";
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
 import { toast } from "sonner";
+
+import { handleServerError } from "@/lib/handle-server-error";
+import { I18nProvider } from "@/lib/i18n/I18nProvider";
+import { useAuthStore } from "@/stores/auth-store";
+// Generated Routes
+import { routeTree } from "./routeTree.gen";
 
 import { DirectionProvider } from "./context/direction-provider";
 import { FontProvider } from "./context/font-provider";
 import { ThemeProvider } from "./context/theme-provider";
-// Generated Routes
-import { routeTree } from "./routeTree.gen";
 
-import { handleServerError } from "@/lib/handle-server-error";
-import { useAuthStore } from "@/stores/auth-store";
 // Styles
 import "./styles/index.css";
 
@@ -24,6 +26,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
+        // eslint-disable-next-line no-console
         if (import.meta.env.DEV) console.log({ failureCount, error });
 
         if (failureCount >= 0 && import.meta.env.DEV) return false;
@@ -93,11 +96,13 @@ if (!rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <FontProvider>
-            <DirectionProvider>
-              <RouterProvider router={router} />
-            </DirectionProvider>
-          </FontProvider>
+          <I18nProvider lang="es">
+            <FontProvider>
+              <DirectionProvider>
+                <RouterProvider router={router} />
+              </DirectionProvider>
+            </FontProvider>
+          </I18nProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>

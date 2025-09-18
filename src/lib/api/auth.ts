@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 import { API_URL } from '@/lib/api/index'
-import type { AuthUser, LoginPayload } from '@/types/auth.types';
+import type { AuthUser } from '@/stores/auth-store';
+import type { Login } from '@/types/auth.types';
 import type { RouteContext } from '@/types/route.types';
 
 export const auth = axios.create({
@@ -11,19 +12,24 @@ export const auth = axios.create({
 
 auth.interceptors.response.use((res) => res, (err) => {
   if (err?.response?.status === 401) {
-    console.warn('Sesión expirada');
-    return Promise.resolve({ data: null });
+    return Promise.reject(err);
   }
   return Promise.reject(err);
-})
+});
 
-export async function login(payload: LoginPayload): Promise<boolean> {
-  return auth.post('/login', payload)
-    .then((res) => res?.status === 201)
+export async function login(payload: Login): Promise<AuthUser> {
+  return auth.post<AuthUser>('/login', payload)
+    .then((res) => res.data)
 }
 
-export async function me(): Promise<AuthUser | null> {
-  return await auth.get<AuthUser>('/me').then((res) => res.data);
+export function me() {
+  const response = auth.get('/me');
+  return response;
+}
+
+export async function session(): Promise<AuthUser> {
+  const response = await auth.get<AuthUser>('/me');
+  return response.data;
 }
 
 export async function getUser(context: RouteContext) {
