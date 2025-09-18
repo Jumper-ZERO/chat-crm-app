@@ -4,7 +4,6 @@ import pluginQuery from '@tanstack/eslint-plugin-query'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import pluginImport from 'eslint-plugin-import'
 
 export default tseslint.config(
   { ignores: ['dist', 'src/components/ui'] },
@@ -22,10 +21,10 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      'import': pluginImport
+      import: pluginImport,
     },
     rules: {
-        ...reactHooks.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
@@ -55,65 +54,6 @@ export default tseslint.config(
       ],
       // Prevent duplicate imports from the same module
       'no-duplicate-imports': 'error',
-      "import/order": [
-    "error",
-    {
-      "groups": [
-        "builtin",
-        "external",
-        "internal",
-        ["parent", "sibling", "index"],
-        "type"
-      ],
-      "pathGroups": [
-        {
-          "pattern": "react",
-          "group": "external",
-          "position": "before"
-        },
-        {
-          "pattern": "@tanstack/**",
-          "group": "external",
-          "position": "after"
-        },
-        {
-          "pattern": "lucide-react",
-          "group": "external",
-          "position": "after"
-        },
-        {
-          "pattern": "@hookform/**",
-          "group": "external",
-          "position": "after"
-        },
-        {
-          "pattern": "sonner",
-          "group": "external",
-          "position": "after"
-        },
-        {
-          "pattern": "@/**",
-          "group": "internal",
-          "position": "after"
-        },
-        {
-          "pattern": "./styles/**",
-          "group": "index",
-          "position": "after"
-        },
-        {
-          "pattern": "./context/**",
-          "group": "sibling",
-          "position": "after"
-        }
-      ],
-      "pathGroupsExcludedImportTypes": ["react"],
-      "alphabetize": {
-        "order": "asc",
-        "caseInsensitive": true
-      }
-    }
-    ],
     },
   }
 )
