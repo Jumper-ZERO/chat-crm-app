@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ArrowRight, ChevronRight, Laptop, Moon, Sun } from 'lucide-react'
+import { ArrowRight, Laptop, Moon, Sun } from 'lucide-react'
 import { useSearch } from '@/context/search-provider'
 import { useTheme } from '@/context/theme-provider'
 import {
@@ -28,49 +28,53 @@ export function CommandMenu() {
     [setOpen]
   )
 
+  const renderItems = (
+    items: any[],
+    parentTitle: string | null = null
+  ): React.ReactNode => {
+    return items.map((item, i) => {
+      const fullTitle = parentTitle
+        ? `${parentTitle} > ${item.title}`
+        : item.title
+
+      if (item.url) {
+        return (
+          <CommandItem
+            key={`${item.url}-${i}`}
+            value={fullTitle}
+            onSelect={() => runCommand(() => navigate({ to: item.url }))}
+          >
+            <div className='flex size-4 items-center justify-center'>
+              <ArrowRight className='text-muted-foreground/80 size-2' />
+            </div>
+            {fullTitle}
+          </CommandItem>
+        )
+      }
+
+      if (item.items) {
+        return renderItems(item.items, item.title)
+      }
+
+      return null
+    })
+  }
+
   return (
     <CommandDialog modal open={open} onOpenChange={setOpen}>
       <CommandInput placeholder='Type a command or search...' />
       <CommandList>
         <ScrollArea type='hover' className='h-72 pe-1'>
           <CommandEmpty>No results found.</CommandEmpty>
+
           {sidebarData.navGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
-              {group.items.map((navItem, i) => {
-                if (navItem.url)
-                  return (
-                    <CommandItem
-                      key={`${navItem.url}-${i}`}
-                      value={navItem.title}
-                      onSelect={() => {
-                        runCommand(() => navigate({ to: navItem.url }))
-                      }}
-                    >
-                      <div className='flex size-4 items-center justify-center'>
-                        <ArrowRight className='text-muted-foreground/80 size-2' />
-                      </div>
-                      {navItem.title}
-                    </CommandItem>
-                  )
-
-                return navItem.items?.map((subItem, i) => (
-                  <CommandItem
-                    key={`${navItem.title}-${subItem.url}-${i}`}
-                    value={`${navItem.title}-${subItem.url}`}
-                    onSelect={() => {
-                      runCommand(() => navigate({ to: subItem.url }))
-                    }}
-                  >
-                    <div className='flex size-4 items-center justify-center'>
-                      <ArrowRight className='text-muted-foreground/80 size-2' />
-                    </div>
-                    {navItem.title} <ChevronRight /> {subItem.title}
-                  </CommandItem>
-                ))
-              })}
+              {renderItems(group.items)}
             </CommandGroup>
           ))}
+
           <CommandSeparator />
+
           <CommandGroup heading='Theme'>
             <CommandItem onSelect={() => runCommand(() => setTheme('light'))}>
               <Sun /> <span>Light</span>
