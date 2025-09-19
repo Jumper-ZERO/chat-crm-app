@@ -1,5 +1,5 @@
+import type { Contact } from "@/features/contacts/data/schema";
 import { client } from "@/lib/http";
-import type { Contact } from "@/models/contact.model";
 import type { Pagination } from "@/models/types";
 
 const contacts = client("/contacts");

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   type SortingState,
   type VisibilityState,
@@ -9,16 +10,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { useEffect, useState } from "react";
-
-import { roles } from "../data/data";
-import { type User } from "../data/schema";
-
-import { DataTableBulkActions } from "./data-table-bulk-actions";
-import { usersColumns as columns } from "./users-columns";
-
-import { DataTablePagination, DataTableToolbar } from "@/components/data-table";
+} from '@tanstack/react-table'
+import { cn } from '@/lib/utils'
+import { type NavigateFn, useTableUrlState } from '@/hooks/use-table-url-state'
 import {
   Table,
   TableBody,
@@ -26,28 +20,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { type NavigateFn, useTableUrlState } from "@/hooks/use-table-url-state";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/table'
+import { DataTablePagination, DataTableToolbar } from '@/components/data-table'
+import { roles } from '../data/data'
+import { type User } from '../data/schema'
+import { DataTableBulkActions } from './data-table-bulk-actions'
+import { usersColumns as columns } from './users-columns'
 
-declare module "@tanstack/react-table" {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface ColumnMeta<TData, TValue> {
-    className: string;
-  }
-}
+// declare module "@tanstack/react-table" {
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   interface ColumnMeta<TData, TValue> {
+//     className: string;
+//   }
+// }
 
 type DataTableProps = {
-  data: User[];
-  search: Record<string, unknown>;
-  navigate: NavigateFn;
-};
+  data: User[]
+  search: Record<string, unknown>
+  navigate: NavigateFn
+}
 
 export function UsersTable({ data, search, navigate }: DataTableProps) {
   // Local UI-only states
-  const [rowSelection, setRowSelection] = useState({});
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [sorting, setSorting] = useState<SortingState>([])
 
   // Local state management for table (uncomment to use local-only state, not synced with URL)
   // const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([])
@@ -67,11 +64,11 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     globalFilter: { enabled: false },
     columnFilters: [
       // username per-column text filter
-      { columnId: "username", searchKey: "username", type: "string" },
-      { columnId: "status", searchKey: "status", type: "array" },
-      { columnId: "role", searchKey: "role", type: "array" },
+      { columnId: 'username', searchKey: 'username', type: 'string' },
+      { columnId: 'status', searchKey: 'status', type: 'array' },
+      { columnId: 'role', searchKey: 'role', type: 'array' },
     ],
-  });
+  })
 
   const table = useReactTable({
     data,
@@ -95,49 +92,49 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  });
+  })
 
   useEffect(() => {
-    ensurePageInRange(table.getPageCount());
-  }, [table, ensurePageInRange]);
+    ensurePageInRange(table.getPageCount())
+  }, [table, ensurePageInRange])
 
   return (
     <div className='space-y-4 max-sm:has-[div[role="toolbar"]]:mb-16'>
       <DataTableToolbar
         table={table}
-        searchPlaceholder="Filter users..."
-        searchKey="username"
+        searchPlaceholder='Filter users...'
+        searchKey='username'
         filters={[
           {
-            columnId: "status",
-            title: "Status",
+            columnId: 'status',
+            title: 'Status',
             options: [
-              { label: "Active", value: "active" },
-              { label: "Inactive", value: "inactive" },
-              { label: "Invited", value: "invited" },
-              { label: "Suspended", value: "suspended" },
+              { label: 'Active', value: 'active' },
+              { label: 'Inactive', value: 'inactive' },
+              { label: 'Invited', value: 'invited' },
+              { label: 'Suspended', value: 'suspended' },
             ],
           },
           {
-            columnId: "role",
-            title: "Role",
+            columnId: 'role',
+            title: 'Role',
             options: roles.map((role) => ({ ...role })),
           },
         ]}
       />
-      <div className="overflow-hidden rounded-md border">
+      <div className='overflow-hidden rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="group/row">
+              <TableRow key={headerGroup.id} className='group/row'>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
                       className={cn(
-                        "bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted",
-                        header.column.columnDef.meta?.className ?? ""
+                        'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
+                        header.column.columnDef.meta?.className ?? ''
                       )}
                     >
                       {header.isPlaceholder
@@ -147,7 +144,7 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -157,15 +154,15 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="group/row"
+                  data-state={row.getIsSelected() && 'selected'}
+                  className='group/row'
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       className={cn(
-                        "bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted",
-                        cell.column.columnDef.meta?.className ?? ""
+                        'bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted',
+                        cell.column.columnDef.meta?.className ?? ''
                       )}
                     >
                       {flexRender(
@@ -180,7 +177,7 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className='h-24 text-center'
                 >
                   No results.
                 </TableCell>
@@ -192,5 +189,5 @@ export function UsersTable({ data, search, navigate }: DataTableProps) {
       <DataTablePagination table={table} />
       <DataTableBulkActions table={table} />
     </div>
-  );
+  )
 }

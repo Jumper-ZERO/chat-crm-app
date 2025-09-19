@@ -22,11 +22,10 @@ import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
 import { Route as dashboardSettings_2RouteRouteImport } from './routes/(dashboard)/settings_2/route'
-import { Route as dashboardContactsRouteRouteImport } from './routes/(dashboard)/contacts/route'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
+import { Route as AuthenticatedContactsIndexRouteImport } from './routes/_authenticated/contacts/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
-import { Route as dashboardContactsIndexRouteImport } from './routes/(dashboard)/contacts/index'
 import { Route as AuthenticatedSettingsIntegrationsWhatsappRouteImport } from './routes/_authenticated/settings/integrations/whatsapp'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -94,11 +93,6 @@ const dashboardSettings_2RouteRoute =
     path: '/settings_2',
     getParentRoute: () => dashboardRouteRoute,
   } as any)
-const dashboardContactsRouteRoute = dashboardContactsRouteRouteImport.update({
-  id: '/contacts',
-  path: '/contacts',
-  getParentRoute: () => dashboardRouteRoute,
-} as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -109,15 +103,16 @@ const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   path: '/tasks/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedContactsIndexRoute =
+  AuthenticatedContactsIndexRouteImport.update({
+    id: '/contacts/',
+    path: '/contacts/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   id: '/chats/',
   path: '/chats/',
   getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const dashboardContactsIndexRoute = dashboardContactsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => dashboardContactsRouteRoute,
 } as any)
 const AuthenticatedSettingsIntegrationsWhatsappRoute =
   AuthenticatedSettingsIntegrationsWhatsappRouteImport.update({
@@ -128,7 +123,6 @@ const AuthenticatedSettingsIntegrationsWhatsappRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
-  '/contacts': typeof dashboardContactsRouteRouteWithChildren
   '/settings_2': typeof dashboardSettings_2RouteRoute
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
@@ -139,8 +133,8 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/contacts/': typeof dashboardContactsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/contacts': typeof AuthenticatedContactsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/settings/integrations/whatsapp': typeof AuthenticatedSettingsIntegrationsWhatsappRoute
@@ -157,8 +151,8 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
-  '/contacts': typeof dashboardContactsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/contacts': typeof AuthenticatedContactsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
   '/settings/integrations/whatsapp': typeof AuthenticatedSettingsIntegrationsWhatsappRoute
@@ -167,7 +161,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/(dashboard)': typeof dashboardRouteRouteWithChildren
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/(dashboard)/contacts': typeof dashboardContactsRouteRouteWithChildren
   '/(dashboard)/settings_2': typeof dashboardSettings_2RouteRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
@@ -179,8 +172,8 @@ export interface FileRoutesById {
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/(dashboard)/contacts/': typeof dashboardContactsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
+  '/_authenticated/contacts/': typeof AuthenticatedContactsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/settings/integrations/whatsapp': typeof AuthenticatedSettingsIntegrationsWhatsappRoute
@@ -189,7 +182,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/contacts'
     | '/settings_2'
     | '/settings'
     | '/forgot-password'
@@ -200,8 +192,8 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/contacts/'
     | '/chats'
+    | '/contacts'
     | '/tasks'
     | '/users'
     | '/settings/integrations/whatsapp'
@@ -218,8 +210,8 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
-    | '/contacts'
     | '/chats'
+    | '/contacts'
     | '/tasks'
     | '/users'
     | '/settings/integrations/whatsapp'
@@ -227,7 +219,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/(dashboard)'
     | '/_authenticated'
-    | '/(dashboard)/contacts'
     | '/(dashboard)/settings_2'
     | '/_authenticated/settings'
     | '/(auth)/forgot-password'
@@ -239,8 +230,8 @@ export interface FileRouteTypes {
     | '/(errors)/500'
     | '/(errors)/503'
     | '/_authenticated/'
-    | '/(dashboard)/contacts/'
     | '/_authenticated/chats/'
+    | '/_authenticated/contacts/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
     | '/_authenticated/settings/integrations/whatsapp'
@@ -351,13 +342,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof dashboardSettings_2RouteRouteImport
       parentRoute: typeof dashboardRouteRoute
     }
-    '/(dashboard)/contacts': {
-      id: '/(dashboard)/contacts'
-      path: '/contacts'
-      fullPath: '/contacts'
-      preLoaderRoute: typeof dashboardContactsRouteRouteImport
-      parentRoute: typeof dashboardRouteRoute
-    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -372,19 +356,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/contacts/': {
+      id: '/_authenticated/contacts/'
+      path: '/contacts'
+      fullPath: '/contacts'
+      preLoaderRoute: typeof AuthenticatedContactsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/chats/': {
       id: '/_authenticated/chats/'
       path: '/chats'
       fullPath: '/chats'
       preLoaderRoute: typeof AuthenticatedChatsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/(dashboard)/contacts/': {
-      id: '/(dashboard)/contacts/'
-      path: '/'
-      fullPath: '/contacts/'
-      preLoaderRoute: typeof dashboardContactsIndexRouteImport
-      parentRoute: typeof dashboardContactsRouteRoute
     }
     '/_authenticated/settings/integrations/whatsapp': {
       id: '/_authenticated/settings/integrations/whatsapp'
@@ -396,28 +380,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface dashboardContactsRouteRouteChildren {
-  dashboardContactsIndexRoute: typeof dashboardContactsIndexRoute
-}
-
-const dashboardContactsRouteRouteChildren: dashboardContactsRouteRouteChildren =
-  {
-    dashboardContactsIndexRoute: dashboardContactsIndexRoute,
-  }
-
-const dashboardContactsRouteRouteWithChildren =
-  dashboardContactsRouteRoute._addFileChildren(
-    dashboardContactsRouteRouteChildren,
-  )
-
 interface dashboardRouteRouteChildren {
-  dashboardContactsRouteRoute: typeof dashboardContactsRouteRouteWithChildren
   dashboardSettings_2RouteRoute: typeof dashboardSettings_2RouteRoute
   dashboardChatRoute: typeof dashboardChatRoute
 }
 
 const dashboardRouteRouteChildren: dashboardRouteRouteChildren = {
-  dashboardContactsRouteRoute: dashboardContactsRouteRouteWithChildren,
   dashboardSettings_2RouteRoute: dashboardSettings_2RouteRoute,
   dashboardChatRoute: dashboardChatRoute,
 }
@@ -445,6 +413,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
+  AuthenticatedContactsIndexRoute: typeof AuthenticatedContactsIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
 }
@@ -453,6 +422,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
+  AuthenticatedContactsIndexRoute: AuthenticatedContactsIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
 }
