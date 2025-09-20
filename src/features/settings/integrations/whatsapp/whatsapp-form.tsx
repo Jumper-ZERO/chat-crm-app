@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useForm, type FieldErrors, type UseFormReturn } from 'react-hook-form'
+import { useForm, type FieldErrors } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
@@ -30,7 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { PasswordInput } from '@/components/password-input'
+import { Separator } from '@/components/ui/separator'
+import { CopyIconButton } from '@/components/button-copy-icon'
+import { InputEndAddOn } from '@/components/input-end-add-on'
+import { PasswordInput } from '@/components/input-password'
 
 const onInvalidSubmit = (errors: FieldErrors<WhatsAppConfigInput>) => {
   Object.values(errors).forEach((error) => {
@@ -69,103 +72,143 @@ export const WhatsappForm = () => {
   ) : (
     <Form {...form}>
       <form
-        // onSubmit={form.handleSubmit((vals) => mutate(vals), onInvalidSubmit)}
         onSubmit={form.handleSubmit(async (vals) => {
-          await toast.promise(mutateAsync(vals), {
+          toast.promise(mutateAsync(vals), {
             loading: 'Guardando configuración...',
             success: 'Configuración guardada correctamente 🎉',
             error: 'Ocurrió un error al guardar la configuración ❌',
           })
         }, onInvalidSubmit)}
-        className='flex h-8/10 flex-col justify-between space-y-6'
+        className='flex h-8/10 w-full flex-col justify-between space-y-6'
       >
-        <div className='flex flex-col gap-5'>
-          {/* Business Information Section */}
+        {/* Business Information Section */}
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-5'>
+          <FormField
+            control={form.control}
+            name='businessId'
+            render={({ field }) => (
+              <FormItem className='col-span-2'>
+                <FormLabel>Business Account ID</FormLabel>
+                <Input placeholder='ID de la cuenta de negocio' {...field} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='phoneNumberId'
+            render={({ field }) => (
+              <FormItem className='col-span-2'>
+                <FormLabel>Phone Number ID</FormLabel>
+                <Input placeholder='ID del número de whatsapp' {...field} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='apiVersion'
+            render={({ field }) => {
+              const handleSelectChange = (val?: string) => {
+                if (!isApiVersion(val)) return
+                field.onChange(val)
+              }
+
+              return (
+                <FormItem>
+                  <FormLabel>Versión de API</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={handleSelectChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl className='w-full'>
+                      <SelectTrigger>
+                        <SelectValue placeholder={'vXX.X'} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {versions.map((version) => (
+                        <SelectItem key={version} value={version}>
+                          {version}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )
+            }}
+          />
+        </div>
+
+        {/* Security Section */}
+        <div className='space-y-4'>
           <div className='space-y-4'>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-              <InputForm
-                form={form}
-                name='businessId'
-                label='Business Account ID'
-                placeholder='ID de la cuenta de negocio'
-              />
-
-              <InputForm
-                form={form}
-                name='phoneNumberId'
-                label='Phone Number ID'
-                placeholder='ID del número de Whatsapp'
-              />
-
-              <FormField
-                control={form.control}
-                name='apiVersion'
-                render={({ field }) => {
-                  const handleSelectChange = (val?: string) => {
-                    if (!isApiVersion(val)) return
-                    field.onChange(val)
-                  }
-
-                  return (
-                    <FormItem>
-                      <FormLabel>Versión de API</FormLabel>
-                      <Select
-                        value={field.value}
-                        onValueChange={handleSelectChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={'vXX.X'} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {versions.map((version) => (
-                            <SelectItem key={version} value={version}>
-                              {version}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Security Section */}
-          <div className='space-y-4'>
-            <h3 className='text-lg font-medium'>Tokens de acceso</h3>
-            <div className='space-y-4'>
-              <InputForm
-                form={form}
-                name='accessToken'
-                label='Access Token'
-                placeholder='Token de acceso de Meta'
-                secret={true}
-              />
-
-              <InputForm
-                form={form}
-                name='webhookVerifyToken'
-                label='Verify Token'
-                placeholder='Token de verificación de Meta'
-                secret={true}
-              />
-            </div>
-          </div>
-
-          {/* Webhook Section */}
-          <div className='space-y-4'>
-            <h3 className='text-lg font-medium'>Configuración de Webhook</h3>
-            <InputForm
-              form={form}
-              name='webhookUrl'
-              label='Webhook URL'
-              placeholder='https://tu-dominio.com/whatsapp/webhook'
+            <FormField
+              control={form.control}
+              name='accessToken'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Access Token</FormLabel>
+                  <PasswordInput
+                    placeholder='Token de acceso de Meta'
+                    {...field}
+                  />
+                </FormItem>
+              )}
             />
           </div>
+        </div>
+
+        {/* Webhook Section */}
+        <div className='mb-0 flex-none'>
+          <h3 className='text-lg font-medium'>Webhook Configuration</h3>
+          <p className='text-muted-foreground text-sm'>
+            Configure endpoints to receive real-time events from external
+            services.
+          </p>
+        </div>
+        <Separator className='my-4 flex-none' />
+        <div className='flex items-end justify-between gap-2'>
+          <FormField
+            control={form.control}
+            name='webhookUrl'
+            render={({ field }) => (
+              <FormItem className='w-full'>
+                <FormLabel>Webhook Url</FormLabel>
+                <FormControl className='flex w-full flex-row'>
+                  <InputEndAddOn
+                    textEnd='/whatsapp/webwook'
+                    placeholder='http://tu-domain.com'
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <CopyIconButton
+            text={form.getValues('webhookUrl') + '/whatsapp/webhook'}
+          />
+        </div>
+
+        <div className='flex items-end justify-between gap-2'>
+          <FormField
+            control={form.control}
+            name='webhookVerifyToken'
+            render={({ field }) => (
+              <FormItem className='w-full'>
+                <FormLabel>Verify Token</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    placeholder='********'
+                    readOnly={true}
+                    {...field}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <CopyIconButton text={form.getValues('webhookVerifyToken') + ''} />
         </div>
 
         {/* Buttons Actions */}
@@ -185,39 +228,5 @@ export const WhatsappForm = () => {
         </div>
       </form>
     </Form>
-  )
-}
-
-export const InputForm = ({
-  form,
-  name,
-  label,
-  placeholder,
-  secret = false,
-}: {
-  form: UseFormReturn
-  name: keyof WhatsAppConfigInput
-  label: string
-  placeholder: string
-  secret?: boolean
-  readOnly?: boolean
-}) => {
-  return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>{label}</FormLabel>
-          <FormControl>
-            {secret ? (
-              <PasswordInput placeholder='********' {...field} />
-            ) : (
-              <Input placeholder={placeholder} {...field} />
-            )}
-          </FormControl>
-        </FormItem>
-      )}
-    />
   )
 }
