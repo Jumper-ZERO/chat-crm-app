@@ -1,11 +1,13 @@
 // import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { PasswordInput } from '@/components/password-input'
+import { useT } from '@/lib/i18n/useT'
+import { cn } from '@/lib/utils'
+import { useSignIn } from '@/hooks/use-sign-in'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -16,9 +18,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useSignIn } from '@/hooks/use-sign-in'
-import { useT } from '@/lib/i18n/useT'
-import { cn } from '@/lib/utils'
+import { PasswordInput } from '@/components/input-password'
 
 const formSchema = z.object({
   username: z
@@ -43,8 +43,8 @@ export function UserAuthForm({
   ...props
 }: UserAuthFormProps) {
   const navigate = useNavigate()
-  const { mutateAsync, isPending } = useSignIn();
-  const { t } = useT();
+  const { mutateAsync, isPending } = useSignIn()
+  const { t } = useT()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,11 +54,11 @@ export function UserAuthForm({
     },
   })
 
-   const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     toast.promise(mutateAsync(values), {
-      loading: "Signing in...",
+      loading: 'Signing in...',
       success: () => {
-        navigate({ to: "/" })
+        navigate({ to: '/' })
         return `Welcome back, ${values.username}!`
       },
     })
@@ -78,7 +78,10 @@ export function UserAuthForm({
             <FormItem>
               <FormLabel>{t('sign-in.form.username.label')}</FormLabel>
               <FormControl>
-                <Input placeholder={t('sign-in.form.username.placeholder')} {...field} />
+                <Input
+                  placeholder={t('sign-in.form.username.placeholder')}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
