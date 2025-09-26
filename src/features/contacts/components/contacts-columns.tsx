@@ -105,10 +105,7 @@ export const useColumns = (): ColumnDef<Contact>[] => {
           />
         ),
         cell: ({ row }) => row.original?.assignedTo?.username ?? 'Unassigned',
-        meta: {
-          label: 'Asignado',
-          variant: 'text',
-        },
+        enableSorting: false,
       },
       {
         id: 'createdAt',

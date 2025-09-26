@@ -4,6 +4,7 @@ import { useContacts } from './contacts-provider'
 
 export function ContactsPrimaryButtons() {
   const { setOpen } = useContacts()
+
   return (
     <div className='flex gap-2'>
       <Button className='space-x-1' onClick={() => setOpen('add')}>

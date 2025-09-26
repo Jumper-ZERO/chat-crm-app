@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { showSubmittedData } from '@/lib/show-submitted-data'
+import { useUsers } from '@/hooks/use-users'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,14 +21,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { SelectDropdown } from '@/components/select-dropdown'
 import { type Contact } from '../data/schema'
 
 // schema de contacto simplificado para formulario
 const formSchema = z.object({
-  name: z.string().min(1, 'Name is required.'),
-  phone: z.string().min(1, 'Phone is required.'),
-  customerStatus: z.enum(['new', 'active', 'inactive', 'blocked']),
+  name: z.string(),
+  phone: z.string(),
   assignedTo: z.uuid().nullable().optional(),
   isEdit: z.boolean(),
 })
@@ -40,39 +41,24 @@ type ContactsActionDialogProps = {
   onOpenChange: (open: boolean) => void
 }
 
-// Opciones de estado
-const statuses = [
-  { label: 'New', value: 'new' },
-  { label: 'Active', value: 'active' },
-  { label: 'Inactive', value: 'inactive' },
-  { label: 'Blocked', value: 'blocked' },
-]
-
-// ⚠️ Aquí simulo usuarios. En tu backend estos deberían venir de la API.
-const users = [
-  { label: 'Unassigned', value: '' },
-  { label: 'Alice Johnson', value: '7fcb3c2d-1234-4abc-b789-111122223333' },
-  { label: 'Bob Smith', value: '89ac7e3a-9876-4def-a321-444455556666' },
-  { label: 'Charlie Brown', value: 'abcd1234-ab12-cd34-ef56-7890abcdef12' },
-]
-
 export function ContactsActionDialog({
   currentRow,
   open,
   onOpenChange,
 }: ContactsActionDialogProps) {
+  const { data: users = [] } = useUsers()
   const isEdit = !!currentRow
   const form = useForm<ContactForm>({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
           ...currentRow,
+          assignedTo: currentRow.assignedTo?.id,
           isEdit,
         }
       : {
           name: '',
           phone: '',
-          customerStatus: 'new',
           assignedTo: null,
           isEdit,
         },
@@ -92,7 +78,7 @@ export function ContactsActionDialog({
         onOpenChange(state)
       }}
     >
-      <DialogContent className='sm:max-w-lg'>
+      <DialogContent className='sm:max-w-sm'>
         <DialogHeader className='text-start'>
           <DialogTitle>
             {isEdit ? 'Edit Contact' : 'Add New Contact'}
@@ -102,7 +88,7 @@ export function ContactsActionDialog({
             Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <div className='h-[24rem] w-[calc(100%+0.75rem)] overflow-y-auto py-1 pe-3'>
+        <div className='h-fit w-[calc(100%+0.75rem)] overflow-y-auto py-1 pe-3'>
           <Form {...form}>
             <form
               id='contact-form'
@@ -114,7 +100,7 @@ export function ContactsActionDialog({
                 control={form.control}
                 name='name'
                 render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
+                  <FormItem className=''>
                     <FormLabel className='col-span-2 text-end'>Name</FormLabel>
                     <FormControl>
                       <Input
@@ -134,38 +120,16 @@ export function ContactsActionDialog({
                 control={form.control}
                 name='phone'
                 render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>Phone</FormLabel>
+                  <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder='+123456789'
-                        className='col-span-4'
-                        autoComplete='off'
-                        {...field}
+                      <PhoneInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        defaultCountry='PE'
+                        placeholder='987 654 321'
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
-                  </FormItem>
-                )}
-              />
-
-              {/* Status */}
-              <FormField
-                control={form.control}
-                name='customerStatus'
-                render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>
-                      Status
-                    </FormLabel>
-                    <SelectDropdown
-                      defaultValue={field.value}
-                      onValueChange={field.onChange}
-                      placeholder='Select status'
-                      className='col-span-4'
-                      items={statuses}
-                    />
-                    <FormMessage className='col-span-4 col-start-3' />
                   </FormItem>
                 )}
               />
@@ -175,16 +139,17 @@ export function ContactsActionDialog({
                 control={form.control}
                 name='assignedTo'
                 render={({ field }) => (
-                  <FormItem className='grid grid-cols-6 items-center space-y-0 gap-x-4 gap-y-1'>
-                    <FormLabel className='col-span-2 text-end'>
-                      Assigned To
-                    </FormLabel>
+                  <FormItem className=''>
+                    <FormLabel className=''>Asignado</FormLabel>
                     <SelectDropdown
                       defaultValue={field.value ?? ''}
                       onValueChange={field.onChange}
                       placeholder='Select user'
                       className='col-span-4'
-                      items={users}
+                      items={users.map((u) => ({
+                        value: u.id,
+                        label: u.username,
+                      }))}
                     />
                     <FormMessage className='col-span-4 col-start-3' />
                   </FormItem>

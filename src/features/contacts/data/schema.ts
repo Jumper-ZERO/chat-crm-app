@@ -13,7 +13,7 @@ export const userSchema = z.object({
   username: z.string().min(1, "El nombre es obligatorio"),
   email: z.email("Correo inválido"),
   role: z.enum(["admin", "editor", "viewer"]).optional(), // si usas roles
-  avatarUrl: z.string().url().nullable().optional(), // si hay imagen
+  avatarUrl: z.url().nullable().optional(), // si hay imagen
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   deletedAt: z.coerce.date().nullable().optional(),
