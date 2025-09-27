@@ -9,8 +9,16 @@ export const saveContact = async (data: object) => {
   return await contacts.post("", data);
 }
 
+export const editContact = async (id: string, data: object) => {
+  return await contacts.patch(`/${id}`, data);
+}
+
 export const getContactsDataTable = async (query: DataTableQuery<Contact>): Promise<Pagination<Contact>> => {
   const { data } = await contacts.post<Pagination<Contact>>("/table", query);
 
   return data;
 };
+
+export const deleteContact = async (id: string) => {
+  return await contacts.delete(`/${id}`);
+}

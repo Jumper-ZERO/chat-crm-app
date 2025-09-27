@@ -89,9 +89,12 @@ export function useDataTable<TData extends object>(props: UseDataTableProps<TDat
   const onPaginationChange = React.useCallback(
     (updaterOrValue: Updater<PaginationState>) => {
       setQueryState(prev => {
-        const newPagination = typeof updaterOrValue === "function" ? updaterOrValue(pagination) : updaterOrValue;
+        const newPagination = typeof updaterOrValue === "function"
+          ? updaterOrValue(pagination)
+          : updaterOrValue;
         return {
           ...prev,
+          page: newPagination.pageIndex + 1,
           perPage: newPagination.pageSize,
         };
       });

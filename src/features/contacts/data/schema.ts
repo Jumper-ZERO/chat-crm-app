@@ -1,3 +1,4 @@
+import { userSchema } from "@/features/users/data/schema"
 import { z } from "zod"
 
 const statusSchema = z.union([
@@ -7,19 +8,6 @@ const statusSchema = z.union([
   z.literal("blocked"),   // customer stopped / unsubscribed / blocked
 ])
 export type ContactStatus = z.infer<typeof statusSchema>
-
-export const userSchema = z.object({
-  id: z.uuid(),
-  username: z.string().min(1, "El nombre es obligatorio"),
-  email: z.email("Correo inválido"),
-  role: z.enum(["admin", "editor", "viewer"]).optional(), // si usas roles
-  avatarUrl: z.url().nullable().optional(), // si hay imagen
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-  deletedAt: z.coerce.date().nullable().optional(),
-});
-
-export type User = z.infer<typeof userSchema>;
 
 export const contactSchema = z.object({
   id: z.uuid(),

@@ -15,11 +15,12 @@ const userRoleSchema = z.union([
   z.literal('manager'),
 ])
 
-const userSchema = z.object({
+export const userSchema = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   username: z.string(),
+  avatar: z.url(),
   email: z.string(),
   phoneNumber: z.string(),
   status: userStatusSchema,

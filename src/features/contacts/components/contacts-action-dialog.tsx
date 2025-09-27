@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { useUsers } from '@/hooks/use-users'
+import { useQueryClient } from '@tanstack/react-query'
+import { editContact, saveContact } from '@/services/contact.service'
+import { isValidPhoneNumber } from 'react-phone-number-input'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -22,16 +25,50 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/phone-input'
-import { SelectDropdown } from '@/components/select-dropdown'
+import { useSearchUsers } from '@/components/contact/hooks/user-search-users'
+import { UserCombobox } from '@/features/contacts/components/user-combobox'
 import { type Contact } from '../data/schema'
 
-// schema de contacto simplificado para formulario
-const formSchema = z.object({
-  name: z.string(),
-  phone: z.string(),
-  assignedTo: z.uuid().nullable().optional(),
-  isEdit: z.boolean(),
-})
+const formSchema = z
+  .object({
+    name: z.string().optional(),
+    phone: z.string(),
+    assignedTo: z.string(),
+    isEdit: z.boolean(),
+  })
+  .refine(
+    ({ isEdit, phone }) => {
+      if (isEdit) return true
+      return phone.trim().length > 0
+    },
+    {
+      message: 'Phone number is required.',
+      path: ['phone'],
+    }
+  )
+  .refine(
+    ({ phone }) => {
+      return isValidPhoneNumber(phone)
+    },
+    {
+      message: 'Not is a valid number phone',
+      path: ['phone'],
+    }
+  )
+  .refine(
+    ({ isEdit, assignedTo }) => {
+      if (isEdit) return true
+      return assignedTo.trim().length > 0
+    },
+    {
+      message: 'Assigned user is required.',
+      path: ['assignedTo'],
+    }
+  )
+  .refine(({ assignedTo }) => z.uuid().safeParse(assignedTo).success, {
+    message: 'Assigned user must be a valid UUID.',
+    path: ['assignedTo'],
+  })
 
 type ContactForm = z.infer<typeof formSchema>
 
@@ -46,7 +83,8 @@ export function ContactsActionDialog({
   open,
   onOpenChange,
 }: ContactsActionDialogProps) {
-  const { data: users = [] } = useUsers()
+  const queryClient = useQueryClient()
+  const [search, setSearch] = useState('')
   const isEdit = !!currentRow
   const form = useForm<ContactForm>({
     resolver: zodResolver(formSchema),
@@ -57,16 +95,41 @@ export function ContactsActionDialog({
           isEdit,
         }
       : {
-          name: '',
           phone: '',
-          assignedTo: null,
+          assignedTo: '',
           isEdit,
         },
   })
 
+  const { data: users = [] } = useSearchUsers(search)
+
   const onSubmit = (values: ContactForm) => {
     form.reset()
-    showSubmittedData(values) // Aquí reemplazarías por llamada a tu backend
+    const { isEdit, ...data } = values
+
+    const apiCall =
+      isEdit && currentRow?.id
+        ? editContact(currentRow.id, data)
+        : saveContact(data)
+
+    toast.promise(apiCall, {
+      loading: 'Guardando...',
+      success: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['contacts'],
+        })
+        return 'Se guardó exitosamente'
+      },
+      error: (err) => {
+        console.error(err)
+        const msg = err.response?.data?.message
+        if (msg) {
+          if (Array.isArray(msg)) return msg.reduce((a, c) => a + ', ' + c)
+          return err.response.data.message
+        }
+        return 'Ocurrió un error al guardar.'
+      },
+    })
     onOpenChange(false)
   }
 
@@ -100,8 +163,10 @@ export function ContactsActionDialog({
                 control={form.control}
                 name='name'
                 render={({ field }) => (
-                  <FormItem className=''>
-                    <FormLabel className='col-span-2 text-end'>Name</FormLabel>
+                  <FormItem>
+                    <FormLabel className='col-span-2 text-end'>
+                      Name (Optional)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder='John Doe'
@@ -110,7 +175,7 @@ export function ContactsActionDialog({
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -119,19 +184,29 @@ export function ContactsActionDialog({
               <FormField
                 control={form.control}
                 name='phone'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teléfono</FormLabel>
-                    <FormControl>
-                      <PhoneInput
-                        value={field.value}
-                        onChange={field.onChange}
-                        defaultCountry='PE'
-                        placeholder='987 654 321'
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const valueInE164 = field.value
+                    ? field.value.startsWith('+')
+                      ? field.value
+                      : `+51${field.value}`
+                    : undefined
+
+                  return (
+                    <FormItem>
+                      <FormLabel>Celular</FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          value={valueInE164}
+                          onChange={field.onChange ?? ''}
+                          defaultCountry='PE'
+                          international={false}
+                          placeholder='987 654 321'
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
               />
 
               {/* Assigned To */}
@@ -141,17 +216,13 @@ export function ContactsActionDialog({
                 render={({ field }) => (
                   <FormItem className=''>
                     <FormLabel className=''>Asignado</FormLabel>
-                    <SelectDropdown
-                      defaultValue={field.value ?? ''}
-                      onValueChange={field.onChange}
-                      placeholder='Select user'
-                      className='col-span-4'
-                      items={users.map((u) => ({
-                        value: u.id,
-                        label: u.username,
-                      }))}
+                    <UserCombobox
+                      value={field.value ?? ''}
+                      onChange={field.onChange}
+                      options={users}
+                      onSearch={(q) => setSearch(q)}
                     />
-                    <FormMessage className='col-span-4 col-start-3' />
+                    <FormMessage />
                   </FormItem>
                 )}
               />

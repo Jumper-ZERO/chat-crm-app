@@ -1,11 +1,13 @@
-import { useState } from "react"
-import { AlertTriangle } from "lucide-react"
-import { showSubmittedData } from "@/lib/show-submitted-data"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ConfirmDialog } from "@/components/confirm-dialog"
-import { type Contact } from "../data/schema"
+import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { deleteContact } from '@/services/contact.service'
+import { AlertTriangle } from 'lucide-react'
+import { toast } from 'sonner'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ConfirmDialog } from '@/components/confirm-dialog'
+import { type Contact } from '../data/schema'
 
 type ContactsDeleteDialogProps = {
   open: boolean
@@ -18,63 +20,75 @@ export function ContactsDeleteDialog({
   onOpenChange,
   currentRow,
 }: ContactsDeleteDialogProps) {
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState('')
+  const queryClient = useQueryClient()
 
   const handleDelete = () => {
     if (value.trim() !== currentRow.phone) return
 
+    toast.promise(deleteContact(currentRow.id), {
+      success: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['contacts'],
+        })
+        return 'Contacto borrado exitosamente'
+      },
+      error: (err) => {
+        console.error(err)
+        if (err.response?.data?.message) {
+          return err.response.data.message
+        }
+        return 'Error al borrar el contacto.'
+      },
+    })
     onOpenChange(false)
-    showSubmittedData(
-      currentRow,
-      "The following contact has been deleted:"
-    )
   }
 
   return (
     <ConfirmDialog
-      open= { open }
-  onOpenChange = { onOpenChange }
-  handleConfirm = { handleDelete }
-  disabled = { value.trim() !== currentRow.phone }
-  title = {
-        < span className = "text-destructive" >
-    <AlertTriangle
-            className="stroke-destructive me-1 inline-block"
-  size = { 18}
-    /> { " "}
+      open={open}
+      onOpenChange={onOpenChange}
+      handleConfirm={handleDelete}
+      disabled={value.trim() !== currentRow.phone}
+      title={
+        <span className='text-destructive'>
+          <AlertTriangle
+            className='stroke-destructive me-1 inline-block'
+            size={18}
+          />{' '}
           Delete Contact
-    </span>
-}
-desc = {
-        < div className = "space-y-4" >
-  <p className="mb-2" >
-    Are you sure you want to delete { " "}
-      < span className = "font-bold" > { currentRow.name } </span>?
-        < br />
-        This action will permanently remove the contact with phone{ " " }
-<span className="font-bold" > { currentRow.phone } </span> from
-            the system.This cannot be undone.
+        </span>
+      }
+      desc={
+        <div className='space-y-4'>
+          <p className='mb-2'>
+            Are you sure you want to delete{' '}
+            <span className='font-bold'> {currentRow.name} </span>?
+            <br />
+            This action will permanently remove the contact with phone{' '}
+            <span className='font-bold'> {currentRow.phone} </span> from the
+            system.This cannot be undone.
           </p>
 
-  < Label className = "my-2" >
-    Phone:
-<Input
-              value={ value }
-onChange = {(e) => setValue(e.target.value)}
-placeholder = "Enter phone to confirm deletion."
-  />
-  </Label>
+          <Label className='my-2'>
+            Phone:
+            <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder='Enter phone to confirm deletion.'
+            />
+          </Label>
 
-  < Alert variant = "destructive" >
-    <AlertTitle>Warning! </AlertTitle>
-    <AlertDescription>
+          <Alert variant='destructive'>
+            <AlertTitle>Warning! </AlertTitle>
+            <AlertDescription>
               Please be careful, this operation can not be rolled back.
             </AlertDescription>
-  </Alert>
-  </div>
+          </Alert>
+        </div>
       }
-confirmText = "Delete"
-destructive
-  />
+      confirmText='Delete'
+      destructive
+    />
   )
 }
