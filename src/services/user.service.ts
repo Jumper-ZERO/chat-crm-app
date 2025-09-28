@@ -1,5 +1,7 @@
 import type { User } from "@/features/users/data/schema";
+import type { DataTableQuery } from "@/hooks/use-data-table";
 import { client } from "@/lib/http";
+import type { Pagination } from "@/models/types";
 
 const users = client("/users");
 
@@ -7,6 +9,11 @@ export const getUsers = async (): Promise<User[]> => {
   const { data } = await users.get<User[]>("");
   return data;
 };
+
+export const getUsersTableData = async (query: DataTableQuery<User>) => {
+  const { data } = await users.post<Pagination<User>>("/table", query);
+  return data;
+}
 
 export const searchUsers = async (search: string): Promise<User[]> => {
   const { data } = await users.get<User[]>("", { params: { search } });
