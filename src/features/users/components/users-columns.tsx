@@ -162,11 +162,10 @@ export const usersColumns = (): ColumnDef<User>[] => {
         meta: {
           label: trnl['role'] ?? 'Role',
           variant: 'select',
-          options: [
-            { label: 'Administrador', value: 'admin' },
-            { label: 'Soporte', value: 'support' },
-            { label: 'Manager', value: 'manager' },
-          ],
+          options: Object.values(roles).map(({ value, label }) => ({
+            value,
+            label,
+          })),
         },
         enableColumnFilter: true,
         enableSorting: false,
