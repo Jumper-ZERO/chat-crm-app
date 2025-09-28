@@ -1,9 +1,13 @@
 import { useId } from 'react'
 import { z } from 'zod'
+import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
+import { editUser, saveUser } from '@/services/user.service'
 import { isValidPhoneNumber } from 'react-phone-number-input'
-import { showSubmittedData } from '@/lib/show-submitted-data'
+import { toast } from 'sonner'
+import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,7 +41,7 @@ const formSchema = z
     email: z.email({
       error: (iss) => (iss.input === '' ? 'Email is required.' : undefined),
     }),
-    password: z.string().transform((pwd) => pwd.trim()),
+    password: z.string().transform((pwd) => pwd?.trim()),
     role: userRoleSchema,
     confirmPassword: z.string().transform((pwd) => pwd.trim()),
     isEdit: z.boolean(),
@@ -115,7 +119,9 @@ export function UsersActionDialog({
   open,
   onOpenChange,
 }: UserActionDialogProps) {
+  const queryClient = useQueryClient()
   const isEdit = !!currentRow
+  const { auth } = useAuthStore()
   const form = useForm<UserForm>({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
@@ -126,23 +132,78 @@ export function UsersActionDialog({
           isEdit,
         }
       : {
-          // Modo Creación
-          firstName: '',
-          lastName: '',
-          username: '',
-          email: '',
-          phone: '',
-          password: '',
-          confirmPassword: '',
           isEdit,
           role: 'agent',
         },
   })
 
-  const onSubmit = (values: UserForm) => {
-    form.reset()
-    showSubmittedData(values)
-    onOpenChange(false)
+  const onSubmit = (data: UserForm) => {
+    const toastConfig = {
+      error: (err: AxiosError) => {
+        if (import.meta.env.DEV) console.log('ERROR [DEV]: ', err)
+        const responseData = err.response?.data as {
+          error: string
+          message: string | string[]
+          statusCode: number
+        }
+        return Array.isArray(responseData.message)
+          ? responseData.message[0]
+          : responseData.message
+      },
+    }
+
+    let fn: Promise<any>
+    let successMessage: string
+    let loadingMessage: string
+
+    if (isEdit) {
+      const dirtyFields = form.formState.dirtyFields
+      const valuesToSend: Partial<
+        Omit<UserForm, 'confirmPassword' | 'isEdit'>
+      > = {}
+
+      for (const key in dirtyFields) {
+        if (dirtyFields[key as keyof UserForm]) {
+          const fieldKey = key as keyof UserForm
+          if (fieldKey !== 'confirmPassword' && fieldKey !== 'isEdit') {
+            ;(valuesToSend as any)[fieldKey] = data[fieldKey]
+          }
+        }
+      }
+
+      if (Object.keys(valuesToSend).length === 0) {
+        toast.info('No hay cambios para guardar.')
+        onOpenChange(false)
+        return
+      }
+
+      fn = editUser(currentRow.id, valuesToSend)
+      loadingMessage = 'Actualizando...'
+      successMessage = 'El usuario se actualizó correctamente'
+    } else {
+      const valuesToSend = {
+        ...data,
+        companyId: auth.user?.companyId,
+      }
+      delete (valuesToSend as any).confirmPassword
+
+      fn = saveUser(valuesToSend)
+      loadingMessage = 'Guardando...'
+      successMessage = 'El usuario se guardo correctamente'
+    }
+
+    toast.promise(fn, {
+      loading: loadingMessage,
+      success: (_data) => {
+        form.reset()
+        queryClient.invalidateQueries({
+          queryKey: ['users', 'table'],
+        })
+        onOpenChange(false)
+        return successMessage
+      },
+      ...toastConfig,
+    })
   }
 
   const isPasswordTouched = !!form.formState.dirtyFields.password
@@ -214,7 +275,7 @@ export function UsersActionDialog({
                     <FormLabel>Username</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='john_doe'
+                        placeholder='john-doe'
                         className='col-span-4'
                         {...field}
                       />

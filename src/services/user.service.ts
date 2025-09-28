@@ -11,11 +11,19 @@ export const getUsers = async (): Promise<User[]> => {
 };
 
 export const getUsersTableData = async (query: DataTableQuery<User>) => {
-  const { data } = await users.post<Pagination<User>>("/table", query);
+  const { data } = await users.post<Pagination<User>>('/table', query);
   return data;
 }
 
 export const searchUsers = async (search: string): Promise<User[]> => {
-  const { data } = await users.get<User[]>("", { params: { search } });
+  const { data } = await users.get<User[]>('', { params: { search } });
   return data;
 };
+
+export const saveUser = async (user: Partial<User>) => {
+  return await users.post('', user);
+}
+
+export const editUser = async (id: string, user: Partial<User>) => {
+  return await users.patch(`/${id}`, user)
+}

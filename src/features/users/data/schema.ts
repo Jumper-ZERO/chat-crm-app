@@ -18,6 +18,8 @@ export const userSchema = z.object({
   email: z.string(),
   phone: z.string(),
   role: userRoleSchema,
+  password: z.string().optional(),
+  companyId: z.uuid(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
