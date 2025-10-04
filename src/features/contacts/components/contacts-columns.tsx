@@ -51,12 +51,12 @@ export const useColumns = (): ColumnDef<Contact>[] => {
         enableColumnFilter: true,
       },
       {
-        id: 'phone',
-        accessorKey: 'phone',
+        id: 'phoneNumber',
+        accessorKey: 'phoneNumber',
         header: ({ column }: { column: Column<Contact, unknown> }) => (
           <DataTableColumnHeader column={column} title='Telefono' />
         ),
-        cell: ({ row }) => formatPhone(row.getValue('phone')),
+        cell: ({ row }) => formatPhone(row.getValue('phoneNumber')),
         enableSorting: false,
       },
       {
