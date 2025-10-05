@@ -1,4 +1,19 @@
-import { type conversations } from './convo.json'
+// import { type conversations } from './convo.json'
 
-export type ChatUser = (typeof conversations)[number]
-export type Convo = ChatUser['messages'][number]
+export interface ChatMessage {
+  sender: string,
+  content: string,
+  timestamp: Date
+}
+
+export type ChatUser = {
+  id: number,
+  fullName: string,
+  phone: string,
+  avatar: string,
+  status: string,
+  title: string,
+  lastMessage: ChatMessage,
+}
+
+// export type Convo = ChatUser['messages'][number]

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Check, X } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { searchContacts } from '@/services/contact.service'
+import { Check, CircleUser, User, X } from 'lucide-react'
+import { parsePhoneNumber } from 'react-phone-number-input'
+import { useDebounce } from 'use-debounce'
 import { showSubmittedData } from '@/lib/show-submitted-data'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,33 +22,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { type ChatUser } from '../data/chat-types'
-
-type User = Omit<ChatUser, 'messages'>
+import type { Message } from '@/features/chats/data/schema'
+import type { Contact } from '@/features/contacts/data/schema'
 
 type NewChatProps = {
-  users: User[]
   open: boolean
   onOpenChange: (open: boolean) => void
+  messages: Record<string, Message>
+  onChatCreated?: (chat: any) => void
 }
-export function NewChat({ users, onOpenChange, open }: NewChatProps) {
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([])
 
-  const handleSelectUser = (user: User) => {
-    if (!selectedUsers.find((u) => u.id === user.id)) {
-      setSelectedUsers([...selectedUsers, user])
+export function NewChat({ onChatCreated, onOpenChange, open }: NewChatProps) {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch] = useDebounce(searchTerm, 400)
+  const [selectedContacts, setSelectedContacts] = useState<Contact[]>([])
+
+  const { data: contacts = [], isLoading } = useQuery({
+    queryKey: ['contacts', debouncedSearch],
+    queryFn: () => searchContacts(debouncedSearch),
+    // enabled: debouncedSearch.length > 0,
+  })
+  console.log(contacts)
+
+  const handleSelectUser = (contact: Contact) => {
+    if (!selectedContacts.find((u) => u.id === contact.id)) {
+      setSelectedContacts([...selectedContacts, contact])
     } else {
-      handleRemoveUser(user.id)
+      handleRemoveUser(contact.id)
     }
   }
 
-  const handleRemoveUser = (userId: string) => {
-    setSelectedUsers(selectedUsers.filter((user) => user.id !== userId))
+  const handleRemoveUser = (contactId: string) => {
+    setSelectedContacts(
+      selectedContacts.filter((contact) => contact.id !== contactId)
+    )
   }
 
   useEffect(() => {
     if (!open) {
-      setSelectedUsers([])
+      setSelectedContacts([])
     }
   }, [open])
 
@@ -54,25 +71,6 @@ export function NewChat({ users, onOpenChange, open }: NewChatProps) {
           <DialogTitle>New message</DialogTitle>
         </DialogHeader>
         <div className='flex flex-col gap-4'>
-          <div className='flex flex-wrap items-baseline-last gap-2'>
-            <span className='text-muted-foreground min-h-6 text-sm'>To:</span>
-            {selectedUsers.map((user) => (
-              <Badge key={user.id} variant='default'>
-                {user.fullName}
-                <button
-                  className='ring-offset-background focus:ring-ring ms-1 rounded-full outline-hidden focus:ring-2 focus:ring-offset-2'
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleRemoveUser(user.id)
-                    }
-                  }}
-                  onClick={() => handleRemoveUser(user.id)}
-                >
-                  <X className='text-muted-foreground hover:text-foreground h-3 w-3' />
-                </button>
-              </Badge>
-            ))}
-          </div>
           <Command className='rounded-lg border'>
             <CommandInput
               placeholder='Search people...'
@@ -81,29 +79,45 @@ export function NewChat({ users, onOpenChange, open }: NewChatProps) {
             <CommandList>
               <CommandEmpty>No people found.</CommandEmpty>
               <CommandGroup>
-                {users.map((user) => (
+                {contacts?.map((contact) => (
                   <CommandItem
-                    key={user.id}
-                    onSelect={() => handleSelectUser(user)}
+                    key={contact.id}
+                    onSelect={() => handleSelectUser(contact)}
                     className='hover:bg-accent hover:text-accent-foreground flex items-center justify-between gap-2'
                   >
                     <div className='flex items-center gap-2'>
-                      <img
-                        src={user.profile || '/placeholder.svg'}
-                        alt={user.fullName}
+                      <Avatar>
+                        <AvatarImage
+                          src={contact.profile}
+                          alt='Hallie Richards'
+                        />
+                        <AvatarFallback className='text-xs'>
+                          <User />
+                        </AvatarFallback>
+                      </Avatar>
+                      {/* <img
+                        src={
+                          contact.profile ||
+                          'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png'
+                        }
+                        alt={contact.firstNames || contact.username}
                         className='h-8 w-8 rounded-full'
-                      />
+                      /> */}
                       <div className='flex flex-col'>
                         <span className='text-sm font-medium'>
-                          {user.fullName}
+                          {contact.firstNames ??
+                            parsePhoneNumber(
+                              contact.phoneNumber,
+                              'PE'
+                            )?.formatInternational()}
                         </span>
                         <span className='text-accent-foreground/70 text-xs'>
-                          {user.username}
+                          {contact.username}
                         </span>
                       </div>
                     </div>
 
-                    {selectedUsers.find((u) => u.id === user.id) && (
+                    {selectedContacts.find((u) => u.id === contact.id) && (
                       <Check className='h-4 w-4' />
                     )}
                   </CommandItem>
@@ -113,8 +127,8 @@ export function NewChat({ users, onOpenChange, open }: NewChatProps) {
           </Command>
           <Button
             variant={'default'}
-            onClick={() => showSubmittedData(selectedUsers)}
-            disabled={selectedUsers.length === 0}
+            onClick={() => showSubmittedData(selectedContacts)}
+            disabled={selectedContacts.length === 0}
           >
             Chat
           </Button>

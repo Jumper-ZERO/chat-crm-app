@@ -1,19 +1,28 @@
 import { useState } from 'react'
 import { Fragment } from 'react/jsx-runtime'
-import { format } from 'date-fns'
+import {
+  differenceInDays,
+  format,
+  isThisYear,
+  isToday,
+  isYesterday,
+} from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
+import { getChatList, getMessagesByChatId } from '@/services/chat.service'
 import {
   ArrowLeft,
   MoreVertical,
   Edit,
   Paperclip,
-  Phone,
   ImagePlus,
   Plus,
   Search as SearchIcon,
   Send,
-  Video,
   MessagesSquare,
+  User,
 } from 'lucide-react'
+import { parsePhoneNumber } from 'react-phone-number-input'
+import { Socket } from 'socket.io-client'
 import { cn } from '@/lib/utils'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -25,41 +34,64 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import type { Chat, Message } from '@/features/chats/data/schema'
 import { NewChat } from './components/new-chat'
-import { type ChatUser, type Convo } from './data/chat-types'
-// Fake Data
-import { conversations } from './data/convo.json'
+
+export function getChatDateLabel(date: Date | string): string {
+  const d = new Date(date)
+  const now = new Date()
+  const diffDays = differenceInDays(now, d)
+
+  if (isToday(date)) return 'Hoy'
+  if (isYesterday(date)) return 'Ayer'
+  if (diffDays <= 7) return format(date, 'EEEE')
+  if (isThisYear(date)) return format(date, "d 'de' MMMM")
+  return format(date, "d 'de' MMMM 'de' yyyy")
+}
+
+export function groupMessagesByDate(
+  messages: Message[]
+): Record<string, Message[]> {
+  return messages.reduce<Record<string, Message[]>>((groups, msg) => {
+    const date = getChatDateLabel(msg.createdAt)
+
+    if (!groups[date]) {
+      groups[date] = []
+    }
+
+    groups[date].push(msg)
+    return groups
+  }, {})
+}
 
 export function Chats() {
   const [search, setSearch] = useState('')
-  const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null)
-  const [mobileSelectedUser, setMobileSelectedUser] = useState<ChatUser | null>(
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
+  const [mobileSelectedChat, setMobileSelectedChat] = useState<Chat | null>(
     null
   )
   const [createConversationDialogOpened, setCreateConversationDialog] =
     useState(false)
 
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['chat', 'list'],
+    queryFn: getChatList,
+    placeholderData: (prev) => prev,
+  })
+
   // Filtered data based on the search query
-  const filteredChatList = conversations.filter(({ fullName }) =>
-    fullName.toLowerCase().includes(search.trim().toLowerCase())
-  )
+  const filteredChatList: Chat[] = conversations.filter(({ contact }) => {
+    if (search.trim() === '') return true
+    return contact?.name?.toLowerCase()?.includes(search.trim().toLowerCase())
+  })
 
-  const currentMessage = selectedUser?.messages.reduce(
-    (acc: Record<string, Convo[]>, obj) => {
-      const key = format(obj.timestamp, 'd MMM, yyyy')
-
-      // Create an array for the category if it doesn't exist
-      if (!acc[key]) {
-        acc[key] = []
-      }
-
-      // Push the current object to the array
-      acc[key].push(obj)
-
-      return acc
-    },
-    {}
-  )
+  const { data: currentMessages } = useQuery({
+    queryKey: ['chat', selectedChat?.id, 'messages'],
+    queryFn: () => getMessagesByChatId(selectedChat!.id),
+    enabled: !!selectedChat?.id,
+    select: groupMessagesByDate,
+  })
 
   const users = conversations.map(({ messages, ...user }) => user)
 
@@ -116,12 +148,11 @@ export function Chats() {
 
             <ScrollArea className='-mx-3 h-full overflow-scroll p-3'>
               {filteredChatList.map((chatUsr) => {
-                const { id, profile, username, messages, fullName } = chatUsr
-                const lastConvo = messages[0]
+                const { id, lastMessage, contact } = chatUsr
                 const lastMsg =
-                  lastConvo.sender === 'You'
-                    ? `You: ${lastConvo.message}`
-                    : lastConvo.message
+                  lastMessage?.direction === 'in'
+                    ? `You: ${lastMessage.body}`
+                    : lastMessage?.body
                 return (
                   <Fragment key={id}>
                     <button
@@ -129,21 +160,31 @@ export function Chats() {
                       className={cn(
                         'group hover:bg-accent hover:text-accent-foreground',
                         `flex w-full rounded-md px-2 py-2 text-start text-sm`,
-                        selectedUser?.id === id && 'sm:bg-muted'
+                        selectedChat?.id === id && 'sm:bg-muted'
                       )}
                       onClick={() => {
-                        setSelectedUser(chatUsr)
-                        setMobileSelectedUser(chatUsr)
+                        setSelectedChat(chatUsr)
+                        setMobileSelectedChat(chatUsr)
                       }}
                     >
                       <div className='flex gap-2'>
                         <Avatar>
-                          <AvatarImage src={profile} alt={username} />
-                          <AvatarFallback>{username}</AvatarFallback>
+                          <AvatarImage
+                            src={contact?.profile}
+                            alt={contact?.name}
+                          />
+                          <AvatarFallback>
+                            {contact?.name || <User />}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <span className='col-start-2 row-span-2 font-medium'>
-                            {fullName}
+                            {contact?.name ??
+                              parsePhoneNumber(
+                                contact?.phoneNumber ?? '',
+                                'PE'
+                              )?.formatNational() ??
+                              'unknown'}
                           </span>
                           <span className='text-muted-foreground group-hover:text-accent-foreground/90 col-start-2 row-span-2 row-start-2 line-clamp-2 text-ellipsis'>
                             {lastMsg}
@@ -159,11 +200,11 @@ export function Chats() {
           </div>
 
           {/* Right Side */}
-          {selectedUser ? (
+          {selectedChat ? (
             <div
               className={cn(
                 'bg-background absolute inset-0 start-full z-50 hidden w-full flex-1 flex-col border shadow-xs sm:static sm:z-auto sm:flex sm:rounded-md',
-                mobileSelectedUser && 'start-0 flex'
+                mobileSelectedChat && 'start-0 flex'
               )}
             >
               {/* Top Part */}
@@ -174,24 +215,30 @@ export function Chats() {
                     size='icon'
                     variant='ghost'
                     className='-ms-2 h-full sm:hidden'
-                    onClick={() => setMobileSelectedUser(null)}
+                    onClick={() => setMobileSelectedChat(null)}
                   >
                     <ArrowLeft className='rtl:rotate-180' />
                   </Button>
                   <div className='flex items-center gap-2 lg:gap-4'>
                     <Avatar className='size-9 lg:size-11'>
                       <AvatarImage
-                        src={selectedUser.profile}
-                        alt={selectedUser.username}
+                        src={selectedChat.contact?.profile}
+                        alt={selectedChat.contact?.name}
                       />
-                      <AvatarFallback>{selectedUser.username}</AvatarFallback>
+                      <AvatarFallback>
+                        {selectedChat.contact?.name ?? 'N/A'}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <span className='col-start-2 row-span-2 text-sm font-medium lg:text-base'>
-                        {selectedUser.fullName}
+                        {selectedChat?.contact?.name}
                       </span>
                       <span className='text-muted-foreground col-start-2 row-span-2 row-start-2 line-clamp-1 block max-w-32 text-xs text-nowrap text-ellipsis lg:max-w-none lg:text-sm'>
-                        {selectedUser.title}
+                        {selectedChat?.contact?.name ||
+                          parsePhoneNumber(
+                            selectedChat.contact.phoneNumber,
+                            'PE'
+                          )?.formatInternational()}
                       </span>
                     </div>
                   </div>
@@ -199,20 +246,6 @@ export function Chats() {
 
                 {/* Right */}
                 <div className='-me-1 flex items-center gap-1 lg:gap-2'>
-                  <Button
-                    size='icon'
-                    variant='ghost'
-                    className='hidden size-8 rounded-full sm:inline-flex lg:size-10'
-                  >
-                    <Video size={22} className='stroke-muted-foreground' />
-                  </Button>
-                  <Button
-                    size='icon'
-                    variant='ghost'
-                    className='hidden size-8 rounded-full sm:inline-flex lg:size-10'
-                  >
-                    <Phone size={22} className='stroke-muted-foreground' />
-                  </Button>
                   <Button
                     size='icon'
                     variant='ghost'
@@ -228,28 +261,28 @@ export function Chats() {
                 <div className='flex size-full flex-1'>
                   <div className='chat-text-container relative -me-4 flex flex-1 flex-col overflow-y-hidden'>
                     <div className='chat-flex flex h-40 w-full grow flex-col-reverse justify-start gap-4 overflow-y-auto py-2 pe-4 pb-4'>
-                      {currentMessage &&
-                        Object.keys(currentMessage).map((key) => (
+                      {currentMessages &&
+                        Object.keys(currentMessages).map((key) => (
                           <Fragment key={key}>
-                            {currentMessage[key].map((msg, index) => (
+                            {currentMessages[key].map((msg, index) => (
                               <div
-                                key={`${msg.sender}-${msg.timestamp}-${index}`}
+                                key={`${selectedChat.contact.name ?? 'N/A'}-${msg.createdAt}-${index}`}
                                 className={cn(
                                   'chat-box max-w-72 px-3 py-2 break-words shadow-lg',
-                                  msg.sender === 'You'
+                                  msg.direction === 'in'
                                     ? 'bg-primary/90 text-primary-foreground/75 self-end rounded-[16px_16px_0_16px]'
                                     : 'bg-muted self-start rounded-[16px_16px_16px_0]'
                                 )}
                               >
-                                {msg.message}{' '}
+                                {msg.body}{' '}
                                 <span
                                   className={cn(
                                     'text-foreground/75 mt-1 block text-xs font-light italic',
-                                    msg.sender === 'You' &&
+                                    msg.direction === 'in' &&
                                       'text-primary-foreground/85 text-end'
                                   )}
                                 >
-                                  {format(msg.timestamp, 'h:mm a')}
+                                  {format(msg.createdAt, 'h:mm a')}
                                 </span>
                               </div>
                             ))}
@@ -339,7 +372,7 @@ export function Chats() {
           )}
         </section>
         <NewChat
-          users={users}
+          messages={currentMessages}
           onOpenChange={setCreateConversationDialog}
           open={createConversationDialogOpened}
         />

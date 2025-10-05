@@ -9,6 +9,11 @@ export const saveContact = async (data: object) => {
   return await contacts.post("", data);
 }
 
+export const searchContacts = async (search: string) => {
+  const { data } = await contacts.get<Contact[]>('/search', { params: { q: search } });
+  return data ?? [];
+}
+
 export const editContact = async (id: string, data: object) => {
   return await contacts.patch(`/${id}`, data);
 }
