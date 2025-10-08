@@ -12,15 +12,15 @@ export const message = z.object({
 })
 
 export const contact = z.object({
-  id: z.number().optional(),
-  waId: z.string().optional(), // ID de WhatsApp
+  id: z.uuid(),
+  waId: z.string().optional(), // WhatsApp ID
   username: z.string().optional(),
   profile: z.url().optional(),
   phoneNumber: z.string(),
   email: z.string().optional(),
   status: z.enum(['new', 'lead', 'prospect', 'client']).default('new'),
   source: z.enum(['whatsapp', 'manual']).default('whatsapp'),
-  tags: z.string()
+  tags: z.array(z.string())
 })
 
 export const chat = z.object({
