@@ -14,7 +14,7 @@ export const message = z.object({
 export const contact = z.object({
   id: z.number().optional(),
   waId: z.string().optional(), // ID de WhatsApp
-  name: z.string().optional(),
+  username: z.string().optional(),
   profile: z.url().optional(),
   phoneNumber: z.string(),
   email: z.string().optional(),
