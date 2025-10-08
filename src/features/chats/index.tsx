@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Fragment } from 'react/jsx-runtime'
 import {
   differenceInDays,
@@ -22,8 +22,9 @@ import {
   User,
 } from 'lucide-react'
 import { parsePhoneNumber } from 'react-phone-number-input'
-import { Socket } from 'socket.io-client'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { useSocket } from '@/context/socket-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -34,7 +35,7 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import type { Chat, Message } from '@/features/chats/data/schema'
+import type { Chat, Contact, Message } from '@/features/chats/data/schema'
 import { NewChat } from './components/new-chat'
 
 export function getChatDateLabel(date: Date | string): string {
@@ -66,13 +67,53 @@ export function groupMessagesByDate(
 
 export function Chats() {
   const [search, setSearch] = useState('')
-  const [socket, setSocket] = useState<Socket | null>(null)
+  const { socket } = useSocket()
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [mobileSelectedChat, setMobileSelectedChat] = useState<Chat | null>(
     null
   )
   const [createConversationDialogOpened, setCreateConversationDialog] =
     useState(false)
+
+  const handleNewChatCreated = (newContact: Contact) => {
+    if (!newContact) return
+
+    const tempChat: Chat = {
+      id: `temp-${newContact.id}`,
+      contact: newContact,
+      lastMessage: {
+        body: '',
+        direction: 'out',
+        type: 'text',
+        status: 'sent',
+        createdAt: new Date().toISOString(),
+      },
+      priority: 'low',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    }
+
+    setSelectedChat(tempChat)
+    setMobileSelectedChat(tempChat)
+  }
+
+  useEffect(() => {
+    if (!socket) return
+
+    socket.on('new-message', (data) => {
+      toast.success(`Mensaje enviado \n${data}`)
+    })
+
+    socket.on('notification', (data) => {
+      toast.info(data.message)
+    })
+
+    // Cleanup
+    return () => {
+      socket.off('new-message')
+      socket.off('notification')
+    }
+  }, [socket])
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['chat', 'list'],
@@ -83,7 +124,9 @@ export function Chats() {
   // Filtered data based on the search query
   const filteredChatList: Chat[] = conversations.filter(({ contact }) => {
     if (search.trim() === '') return true
-    return contact?.name?.toLowerCase()?.includes(search.trim().toLowerCase())
+    return contact?.username
+      ?.toLowerCase()
+      ?.includes(search.trim().toLowerCase())
   })
 
   const { data: currentMessages } = useQuery({
@@ -92,8 +135,6 @@ export function Chats() {
     enabled: !!selectedChat?.id,
     select: groupMessagesByDate,
   })
-
-  const users = conversations.map(({ messages, ...user }) => user)
 
   return (
     <>
@@ -111,7 +152,12 @@ export function Chats() {
         <section className='flex h-full gap-6'>
           {/* Left Side */}
           <div className='flex w-full flex-col gap-2 sm:w-56 lg:w-72 2xl:w-80'>
-            <div className='bg-background sticky top-0 z-10 -mx-4 px-4 pb-3 shadow-md sm:static sm:z-auto sm:mx-0 sm:p-0 sm:shadow-none'>
+            <div
+              className={cn(
+                'bg-background sticky top-0 z-10 -mx-4 px-4 pb-3',
+                'shadow-md sm:static sm:z-auto sm:mx-0 sm:p-0 sm:shadow-none'
+              )}
+            >
               <div className='flex items-center justify-between py-2'>
                 <div className='flex gap-2'>
                   <h1 className='text-2xl font-bold'>Inbox</h1>
@@ -150,7 +196,7 @@ export function Chats() {
               {filteredChatList.map((chatUsr) => {
                 const { id, lastMessage, contact } = chatUsr
                 const lastMsg =
-                  lastMessage?.direction === 'in'
+                  lastMessage?.direction === 'out'
                     ? `You: ${lastMessage.body}`
                     : lastMessage?.body
                 return (
@@ -171,22 +217,27 @@ export function Chats() {
                         <Avatar>
                           <AvatarImage
                             src={contact?.profile}
-                            alt={contact?.name}
+                            alt={contact?.username}
                           />
-                          <AvatarFallback>
-                            {contact?.name || <User />}
+                          <AvatarFallback className='font-bold'>
+                            {contact?.username?.charAt(0) || <User />}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <span className='col-start-2 row-span-2 font-medium'>
-                            {contact?.name ??
+                            {contact?.username ??
                               parsePhoneNumber(
                                 contact?.phoneNumber ?? '',
                                 'PE'
                               )?.formatNational() ??
                               'unknown'}
                           </span>
-                          <span className='text-muted-foreground group-hover:text-accent-foreground/90 col-start-2 row-span-2 row-start-2 line-clamp-2 text-ellipsis'>
+                          <span
+                            className={cn(
+                              'col-start-2 row-span-2 row-start-2 line-clamp-2',
+                              'text-muted-foreground group-hover:text-accent-foreground/90 text-ellipsis'
+                            )}
+                          >
                             {lastMsg}
                           </span>
                         </div>
@@ -203,7 +254,8 @@ export function Chats() {
           {selectedChat ? (
             <div
               className={cn(
-                'bg-background absolute inset-0 start-full z-50 hidden w-full flex-1 flex-col border shadow-xs sm:static sm:z-auto sm:flex sm:rounded-md',
+                'bg-background absolute inset-0 start-full z-50 hidden w-full',
+                'flex-1 flex-col border shadow-xs sm:static sm:z-auto sm:flex sm:rounded-md',
                 mobileSelectedChat && 'start-0 flex'
               )}
             >
@@ -223,22 +275,27 @@ export function Chats() {
                     <Avatar className='size-9 lg:size-11'>
                       <AvatarImage
                         src={selectedChat.contact?.profile}
-                        alt={selectedChat.contact?.name}
+                        alt={selectedChat.contact?.username}
                       />
-                      <AvatarFallback>
-                        {selectedChat.contact?.name ?? 'N/A'}
+                      <AvatarFallback className='font-bold'>
+                        {selectedChat.contact?.username?.charAt(0) ?? 'N/A'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <span className='col-start-2 row-span-2 text-sm font-medium lg:text-base'>
-                        {selectedChat?.contact?.name}
+                        {selectedChat?.contact?.username ?? 'Desconocido'}
                       </span>
-                      <span className='text-muted-foreground col-start-2 row-span-2 row-start-2 line-clamp-1 block max-w-32 text-xs text-nowrap text-ellipsis lg:max-w-none lg:text-sm'>
-                        {selectedChat?.contact?.name ||
-                          parsePhoneNumber(
-                            selectedChat.contact.phoneNumber,
-                            'PE'
-                          )?.formatInternational()}
+                      <span
+                        className={cn(
+                          'text-muted-foreground col-start-2 row-span-2 row-start-2',
+                          'line-clamp-1 block max-w-32 text-xs text-nowrap text-ellipsis lg:max-w-none lg:text-sm'
+                        )}
+                      >
+                        {parsePhoneNumber(
+                          selectedChat.contact.phoneNumber,
+                          'PE'
+                        )?.formatInternational() ||
+                          selectedChat.contact.username}
                       </span>
                     </div>
                   </div>
@@ -266,7 +323,7 @@ export function Chats() {
                           <Fragment key={key}>
                             {currentMessages[key].map((msg, index) => (
                               <div
-                                key={`${selectedChat.contact.name ?? 'N/A'}-${msg.createdAt}-${index}`}
+                                key={`${selectedChat.contact.username ?? 'N/A'}-${msg.createdAt}-${index}`}
                                 className={cn(
                                   'chat-box max-w-72 px-3 py-2 break-words shadow-lg',
                                   msg.direction === 'in'
@@ -293,7 +350,12 @@ export function Chats() {
                   </div>
                 </div>
                 <form className='flex w-full flex-none gap-2'>
-                  <div className='border-input bg-card focus-within:ring-ring flex flex-1 items-center gap-2 rounded-md border px-2 py-1 focus-within:ring-1 focus-within:outline-hidden lg:gap-4'>
+                  <div
+                    className={cn(
+                      'border-input bg-card focus-within:ring-ring flex flex-1 items-center',
+                      'gap-2 rounded-md border px-2 py-1 focus-within:ring-1 focus-within:outline-hidden lg:gap-4'
+                    )}
+                  >
                     <div className='space-x-1'>
                       <Button
                         size='icon'
@@ -351,7 +413,8 @@ export function Chats() {
           ) : (
             <div
               className={cn(
-                'bg-card absolute inset-0 start-full z-50 hidden w-full flex-1 flex-col justify-center rounded-md border shadow-xs sm:static sm:z-auto sm:flex'
+                'bg-card absolute inset-0 start-full z-50 hidden w-full',
+                'flex-1 flex-col justify-center rounded-md border shadow-xs sm:static sm:z-auto sm:flex'
               )}
             >
               <div className='flex flex-col items-center space-y-6'>
@@ -372,7 +435,7 @@ export function Chats() {
           )}
         </section>
         <NewChat
-          messages={currentMessages}
+          onChatCreated={handleNewChatCreated}
           onOpenChange={setCreateConversationDialog}
           open={createConversationDialogOpened}
         />
