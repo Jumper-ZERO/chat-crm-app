@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { searchContacts } from '@/services/contact.service'
-import { Check, CircleUser, User, X } from 'lucide-react'
+import { Check, User } from 'lucide-react'
 import { parsePhoneNumber } from 'react-phone-number-input'
 import { useDebounce } from 'use-debounce'
-import { showSubmittedData } from '@/lib/show-submitted-data'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Command,
@@ -22,45 +20,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { Message } from '@/features/chats/data/schema'
-import type { Contact } from '@/features/contacts/data/schema'
+import type { Contact } from '@/features/chats/data/schema'
 
 type NewChatProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  messages: Record<string, Message>
-  onChatCreated?: (chat: any) => void
+  onChatCreated?: (contacts: Contact) => void
 }
 
-export function NewChat({ onChatCreated, onOpenChange, open }: NewChatProps) {
+export function NewChat({ open, onOpenChange, onChatCreated }: NewChatProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearch] = useDebounce(searchTerm, 400)
-  const [selectedContacts, setSelectedContacts] = useState<Contact[]>([])
+  const [selectedContacts, setSelectedContacts] = useState<Contact | null>(null)
 
-  const { data: contacts = [], isLoading } = useQuery({
+  const { data: contacts = [] } = useQuery({
     queryKey: ['contacts', debouncedSearch],
     queryFn: () => searchContacts(debouncedSearch),
-    // enabled: debouncedSearch.length > 0,
   })
-  console.log(contacts)
 
-  const handleSelectUser = (contact: Contact) => {
-    if (!selectedContacts.find((u) => u.id === contact.id)) {
-      setSelectedContacts([...selectedContacts, contact])
-    } else {
-      handleRemoveUser(contact.id)
-    }
+  const handleCreateChat = () => {
+    if (!selectedContacts) return
+
+    onChatCreated?.(selectedContacts)
+
+    onOpenChange(false)
+    setSelectedContacts(null)
+    setSearchTerm('')
   }
 
-  const handleRemoveUser = (contactId: string) => {
-    setSelectedContacts(
-      selectedContacts.filter((contact) => contact.id !== contactId)
-    )
+  const setDisplaySearchTerm = (value: string) => {
+    setSearchTerm(value)
+  }
+
+  const handleSelectUser = (contact: Contact) => {
+    setSelectedContacts((prev) => (prev?.id === contact.id ? null : contact))
   }
 
   useEffect(() => {
     if (!open) {
-      setSelectedContacts([])
+      setSelectedContacts(null)
     }
   }, [open])
 
@@ -75,6 +73,8 @@ export function NewChat({ onChatCreated, onOpenChange, open }: NewChatProps) {
             <CommandInput
               placeholder='Search people...'
               className='text-foreground'
+              onValueChange={setDisplaySearchTerm}
+              value={searchTerm}
             />
             <CommandList>
               <CommandEmpty>No people found.</CommandEmpty>
@@ -95,14 +95,6 @@ export function NewChat({ onChatCreated, onOpenChange, open }: NewChatProps) {
                           <User />
                         </AvatarFallback>
                       </Avatar>
-                      {/* <img
-                        src={
-                          contact.profile ||
-                          'https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png'
-                        }
-                        alt={contact.firstNames || contact.username}
-                        className='h-8 w-8 rounded-full'
-                      /> */}
                       <div className='flex flex-col'>
                         <span className='text-sm font-medium'>
                           {contact.firstNames ??
@@ -117,7 +109,7 @@ export function NewChat({ onChatCreated, onOpenChange, open }: NewChatProps) {
                       </div>
                     </div>
 
-                    {selectedContacts.find((u) => u.id === contact.id) && (
+                    {selectedContacts?.id === contact.id && (
                       <Check className='h-4 w-4' />
                     )}
                   </CommandItem>
@@ -127,8 +119,8 @@ export function NewChat({ onChatCreated, onOpenChange, open }: NewChatProps) {
           </Command>
           <Button
             variant={'default'}
-            onClick={() => showSubmittedData(selectedContacts)}
-            disabled={selectedContacts.length === 0}
+            onClick={handleCreateChat}
+            disabled={!selectedContacts}
           >
             Chat
           </Button>
