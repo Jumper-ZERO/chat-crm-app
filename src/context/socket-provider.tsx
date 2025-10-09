@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 
 interface SocketContextType {
@@ -24,13 +25,21 @@ interface SocketProviderProps {
   children: React.ReactNode
 }
 
+const handleError = (err: any) => {
+  console.log(err)
+  toast.error(err.type, {
+    position: 'top-right',
+    description: err.message,
+  })
+}
+
 export const SocketProvider = ({ children }: SocketProviderProps) => {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const { user, accessToken: token } = useAuthStore((state) => state.auth)
 
   useEffect(() => {
-    if (!user || !token) {
+    if (!user) {
       if (socket) {
         socket.disconnect()
         setSocket(null)
@@ -40,12 +49,17 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     }
 
     const newSocket = io(
-      import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000',
+      import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000/whatsapp',
       {
         auth: {
-          token,
+          user,
         },
+        withCredentials: true,
         transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: 5,
       }
     )
 
@@ -60,10 +74,12 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       setIsConnected(false)
     })
 
-    newSocket.on('connect_error', (error) => {
+    newSocket.on('connect-error', (error) => {
       console.error('Socket connection error:', error)
       setIsConnected(false)
     })
+
+    newSocket.on('error-event', handleError)
 
     setSocket(newSocket)
 
