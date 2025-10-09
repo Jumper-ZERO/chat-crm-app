@@ -92,19 +92,19 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <I18nProvider lang='es'>
-            <FontProvider>
-              <DirectionProvider>
-                <SocketProvider>
+      <SocketProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <I18nProvider lang='es'>
+              <FontProvider>
+                <DirectionProvider>
                   <RouterProvider router={router} />
-                </SocketProvider>
-              </DirectionProvider>
-            </FontProvider>
-          </I18nProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
+                </DirectionProvider>
+              </FontProvider>
+            </I18nProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </SocketProvider>
     </StrictMode>
   )
 }
