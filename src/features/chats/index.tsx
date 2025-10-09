@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils'
 import { useSocket } from '@/context/socket-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
@@ -68,6 +69,7 @@ export function groupMessagesByDate(
 export function Chats() {
   const [search, setSearch] = useState('')
   const { socket } = useSocket()
+  const [messageInput, setMessageInput] = useState<string>('')
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null)
   const [mobileSelectedChat, setMobileSelectedChat] = useState<Chat | null>(
     null
@@ -95,6 +97,17 @@ export function Chats() {
 
     setSelectedChat(tempChat)
     setMobileSelectedChat(tempChat)
+  }
+
+  const handleSendMessage = (body: string) => {
+    console.log(selectedChat?.contact)
+    socket?.emit('send-message', {
+      chat: selectedChat?.id,
+      to: selectedChat?.contact.phoneNumber,
+      body,
+    })
+
+    refetchMessages()
   }
 
   useEffect(() => {
@@ -129,7 +142,7 @@ export function Chats() {
       ?.includes(search.trim().toLowerCase())
   })
 
-  const { data: currentMessages } = useQuery({
+  const { data: currentMessages, refetch: refetchMessages } = useQuery({
     queryKey: ['chat', selectedChat?.id, 'messages'],
     queryFn: () => getMessagesByChatId(selectedChat!.id),
     enabled: !!selectedChat?.id,
@@ -349,7 +362,14 @@ export function Chats() {
                     </div>
                   </div>
                 </div>
-                <form className='flex w-full flex-none gap-2'>
+                <form
+                  className='flex w-full flex-none gap-2'
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    handleSendMessage(messageInput)
+                    setMessageInput('')
+                  }}
+                >
                   <div
                     className={cn(
                       'border-input bg-card focus-within:ring-ring flex flex-1 items-center',
@@ -390,10 +410,11 @@ export function Chats() {
                     </div>
                     <label className='flex-1'>
                       <span className='sr-only'>Chat Text Box</span>
-                      <input
-                        type='text'
+                      <Input
                         placeholder='Type your messages...'
                         className='h-8 w-full bg-inherit focus-visible:outline-hidden'
+                        value={messageInput}
+                        onChange={(e) => setMessageInput(e.target.value)}
                       />
                     </label>
                     <Button
