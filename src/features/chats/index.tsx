@@ -7,7 +7,7 @@ import {
   isToday,
   isYesterday,
 } from 'date-fns'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getChatList, getMessagesByChatId } from '@/services/chat.service'
 import {
   ArrowLeft,
@@ -54,16 +54,29 @@ export function getChatDateLabel(date: Date | string): string {
 export function groupMessagesByDate(
   messages: Message[]
 ): Record<string, Message[]> {
-  return messages.reduce<Record<string, Message[]>>((groups, msg) => {
-    const date = getChatDateLabel(msg.createdAt)
+  const groups = messages.reduce(
+    (acc, msg) => {
+      const dateKey: string = format(new Date(msg.createdAt), 'yyyy-MM-dd')
+      acc[dateKey] = acc[dateKey] ? [...acc[dateKey], msg] : [msg]
+      return acc
+    },
+    {} as Record<string, Message[]>
+  )
 
-    if (!groups[date]) {
-      groups[date] = []
-    }
+  for (const date in groups) {
+    groups[date].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  }
 
-    groups[date].push(msg)
-    return groups
-  }, {})
+  const sortedGroups = Object.fromEntries(
+    Object.entries(groups).sort(
+      ([a], [b]) => new Date(a).getTime() - new Date(b).getTime()
+    )
+  )
+
+  return sortedGroups
 }
 
 export function Chats() {
@@ -76,6 +89,7 @@ export function Chats() {
   )
   const [createConversationDialogOpened, setCreateConversationDialog] =
     useState(false)
+  const queryClient = useQueryClient()
 
   const handleNewChatCreated = (newContact: Contact) => {
     if (!newContact) return
@@ -100,22 +114,40 @@ export function Chats() {
   }
 
   const handleSendMessage = (body: string) => {
-    console.log(selectedChat?.contact)
     socket?.emit('send-message', {
       chat: selectedChat?.id,
       to: selectedChat?.contact.phoneNumber,
       body,
     })
-
-    refetchMessages()
   }
 
   useEffect(() => {
-    if (!socket) return
+    if (!socket || !selectedChat?.id) return
 
-    socket.on('new-message', (data) => {
-      toast.success(`Mensaje enviado \n${data}`)
-    })
+    const handleNewMessage = (newMessage: Message) => {
+      queryClient.setQueryData(
+        ['chat', selectedChat.id, 'messages'],
+        (oldMessages: Message[] | undefined) => {
+          if (!oldMessages) return [newMessage]
+          return [...oldMessages, newMessage]
+        }
+      )
+
+      queryClient.setQueryData(
+        ['chat', 'list'],
+        (oldChats: Chat[] | undefined) => {
+          if (!oldChats) return oldChats
+          return oldChats.map((chat) => {
+            if (chat.id === selectedChat?.id) {
+              return { ...chat, lastMessage: newMessage }
+            }
+            return chat
+          })
+        }
+      )
+    }
+
+    socket.on('new-message', handleNewMessage)
 
     socket.on('notification', (data) => {
       toast.info(data.message)
@@ -123,10 +155,10 @@ export function Chats() {
 
     // Cleanup
     return () => {
-      socket.off('new-message')
+      socket.off('new-message', handleNewMessage)
       socket.off('notification')
     }
-  }, [socket])
+  }, [socket, selectedChat?.id, queryClient])
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['chat', 'list'],
@@ -142,7 +174,7 @@ export function Chats() {
       ?.includes(search.trim().toLowerCase())
   })
 
-  const { data: currentMessages, refetch: refetchMessages } = useQuery({
+  const { data: currentMessages } = useQuery({
     queryKey: ['chat', selectedChat?.id, 'messages'],
     queryFn: () => getMessagesByChatId(selectedChat!.id),
     enabled: !!selectedChat?.id,
@@ -356,7 +388,9 @@ export function Chats() {
                                 </span>
                               </div>
                             ))}
-                            <div className='text-center text-xs'>{key}</div>
+                            <div className='text-center text-xs'>
+                              {getChatDateLabel(key)}
+                            </div>
                           </Fragment>
                         ))}
                     </div>
