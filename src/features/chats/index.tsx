@@ -242,7 +242,7 @@ export function Chats() {
                 const { id, lastMessage, contact } = chatUsr
                 const lastMsg =
                   lastMessage?.direction === 'out'
-                    ? `You: ${lastMessage.body}`
+                    ? `Yo: ${lastMessage.body}`
                     : lastMessage?.body
                 return (
                   <Fragment key={id}>
@@ -371,7 +371,7 @@ export function Chats() {
                                 key={`${selectedChat.contact.username ?? 'N/A'}-${msg.createdAt}-${index}`}
                                 className={cn(
                                   'chat-box max-w-72 px-3 py-2 break-words shadow-lg',
-                                  msg.direction === 'in'
+                                  msg.direction === 'out'
                                     ? 'bg-primary/90 text-primary-foreground/75 self-end rounded-[16px_16px_0_16px]'
                                     : 'bg-muted self-start rounded-[16px_16px_16px_0]'
                                 )}
@@ -380,7 +380,7 @@ export function Chats() {
                                 <span
                                   className={cn(
                                     'text-foreground/75 mt-1 block text-xs font-light italic',
-                                    msg.direction === 'in' &&
+                                    msg.direction === 'out' &&
                                       'text-primary-foreground/85 text-end'
                                   )}
                                 >
