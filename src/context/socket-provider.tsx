@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { sendTemplate } from '@/services/whatsapp.service'
 import { io, Socket } from 'socket.io-client'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
@@ -27,10 +28,22 @@ interface SocketProviderProps {
 
 const handleError = (err: any) => {
   console.log(err)
-  toast.error(err.type, {
-    position: 'top-right',
-    description: err.message,
-  })
+  if (err?.hasAction) {
+    toast.error(err.type, {
+      position: 'top-right',
+      description: err.message,
+      action: {
+        label: 'Enviar',
+        onClick: () => sendTemplate(err.to),
+      },
+      duration: Infinity,
+    })
+  } else {
+    toast.error(err.type, {
+      position: 'top-right',
+      description: err.message,
+    })
+  }
 }
 
 export const SocketProvider = ({ children }: SocketProviderProps) => {

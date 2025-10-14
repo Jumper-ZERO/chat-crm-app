@@ -129,6 +129,7 @@ export function Chats() {
         ['chat', selectedChat.id, 'messages'],
         (oldMessages: Message[] | undefined) => {
           if (!oldMessages) return [newMessage]
+          console.log(newMessage)
           return [...oldMessages, newMessage]
         }
       )
@@ -254,7 +255,10 @@ export function Chats() {
                         selectedChat?.id === id && 'sm:bg-muted'
                       )}
                       onClick={() => {
-                        setSelectedChat(chatUsr)
+                        setSelectedChat(() => {
+                          socket?.emit('join-chat', chatUsr.id)
+                          return chatUsr
+                        })
                         setMobileSelectedChat(chatUsr)
                       }}
                     >

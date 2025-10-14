@@ -13,6 +13,11 @@ export const getConfig = async (businessID: string) => {
   return result.data;
 };
 
+export const sendTemplate = async (to: string) => {
+  const { data } = await ws.post('/send/template', { to })
+  return data
+}
+
 export const saveConfig = async (businessId: string, body: WhatsAppConfigInput) => {
   const { data } = await ws.patch<WhatsAppConfigInput>(`config/${businessId}`, body);
   const result = WhatsappConfigSchema.safeParse(data);
