@@ -40,15 +40,17 @@ import type { Chat, Contact, Message } from '@/features/chats/data/schema'
 import { NewChat } from './components/new-chat'
 
 export function getChatDateLabel(date: Date | string): string {
-  const d = new Date(date)
+  const d =
+    typeof date === 'string' ? new Date(`${date}T00:00:00`) : new Date(date)
+
   const now = new Date()
   const diffDays = differenceInDays(now, d)
 
-  if (isToday(date)) return 'Hoy'
-  if (isYesterday(date)) return 'Ayer'
-  if (diffDays <= 7) return format(date, 'EEEE')
-  if (isThisYear(date)) return format(date, "d 'de' MMMM")
-  return format(date, "d 'de' MMMM 'de' yyyy")
+  if (isToday(d)) return 'Hoy'
+  if (isYesterday(d)) return 'Ayer'
+  if (diffDays <= 7) return format(d, 'EEEE')
+  if (isThisYear(d)) return format(d, "d 'de' MMMM")
+  return format(d, "d 'de' MMMM 'de' yyyy")
 }
 
 export function groupMessagesByDate(
@@ -72,7 +74,7 @@ export function groupMessagesByDate(
 
   const sortedGroups = Object.fromEntries(
     Object.entries(groups).sort(
-      ([a], [b]) => new Date(a).getTime() - new Date(b).getTime()
+      ([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
     )
   )
 
