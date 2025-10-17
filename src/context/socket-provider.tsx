@@ -36,6 +36,7 @@ const handleError = (err: any) => {
         label: 'Enviar',
         onClick: () => sendTemplate(err.to),
       },
+      closeButton: true,
       duration: Infinity,
     })
   } else {
