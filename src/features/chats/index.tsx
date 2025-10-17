@@ -13,9 +13,6 @@ import {
   ArrowLeft,
   MoreVertical,
   Edit,
-  Paperclip,
-  ImagePlus,
-  Plus,
   Search as SearchIcon,
   Send,
   MessagesSquare,
@@ -416,7 +413,7 @@ export function Chats() {
                       'gap-2 rounded-md border px-2 py-1 focus-within:ring-1 focus-within:outline-hidden lg:gap-4'
                     )}
                   >
-                    <div className='space-x-1'>
+                    {/* <div className='space-x-1'>
                       <Button
                         size='icon'
                         type='button'
@@ -447,7 +444,7 @@ export function Chats() {
                           className='stroke-muted-foreground'
                         />
                       </Button>
-                    </div>
+                    </div> */}
                     <label className='flex-1'>
                       <span className='sr-only'>Chat Text Box</span>
                       <Input
