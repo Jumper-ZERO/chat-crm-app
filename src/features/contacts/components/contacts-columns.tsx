@@ -1,13 +1,19 @@
 import { useMemo } from 'react'
 import type { ColumnDef, Column } from '@tanstack/react-table'
 import dayjs from 'dayjs'
-import { Ban, CircleDashed, CircleDot, CirclePlus } from 'lucide-react'
+import {
+  Ban,
+  CircleDashed,
+  CircleDot,
+  CirclePlus,
+  type LucideIcon,
+} from 'lucide-react'
 import { formatPhone } from '@/lib/phone'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { DataTableRowActions } from '@/features/contacts/components/data-table-row-actions'
-import type { Contact } from '@/features/contacts/data/schema'
+import type { Contact, ContactStatus } from '@/features/contacts/data/schema'
 
 export const useColumns = (): ColumnDef<Contact>[] => {
   return useMemo<ColumnDef<Contact>[]>(
@@ -38,10 +44,10 @@ export const useColumns = (): ColumnDef<Contact>[] => {
         enableHiding: false,
       },
       {
-        id: 'name',
-        accessorKey: 'name',
+        id: 'username',
+        accessorKey: 'username',
         header: ({ column }: { column: Column<Contact, unknown> }) => (
-          <DataTableColumnHeader column={column} title='Nombre' />
+          <DataTableColumnHeader column={column} title='Username' />
         ),
         meta: {
           label: 'Nombre',
@@ -66,11 +72,11 @@ export const useColumns = (): ColumnDef<Contact>[] => {
           <DataTableColumnHeader column={column} title='Estado' />
         ),
         cell: ({ cell }) => {
-          const icons = {
+          const icons: Record<ContactStatus, LucideIcon> = {
             new: CirclePlus,
-            active: CircleDot,
-            inactive: CircleDashed,
-            blocked: Ban,
+            prospect: CircleDot,
+            lead: CircleDashed,
+            client: Ban,
           }
           const status = cell.getValue<Contact['status']>()
           const Icon = icons[status]
@@ -92,19 +98,6 @@ export const useColumns = (): ColumnDef<Contact>[] => {
           ],
         },
         enableColumnFilter: true,
-        enableSorting: false,
-      },
-      {
-        id: 'assignedTo',
-        accessorFn: (row) => row.assignedTo?.username ?? 'Unassigned',
-        header: ({ column }: { column: Column<Contact, unknown> }) => (
-          <DataTableColumnHeader
-            column={column}
-            key={column.getIndex()}
-            title='Asignado'
-          />
-        ),
-        cell: ({ row }) => row.original?.assignedTo?.username ?? 'Unassigned',
         enableSorting: false,
       },
       {

@@ -7,6 +7,7 @@ import { roles } from '../data/data'
 import { type User } from '../data/schema'
 import { DataTableRowActions } from './data-table-row-actions'
 
+// Translations
 const trnl: Partial<Record<keyof User, string>> = {
   phone: 'Telefono',
   role: 'Rol',
@@ -67,8 +68,8 @@ export const usersColumns = (): ColumnDef<User>[] => {
         },
       },
       {
-        accessorKey: 'firstName',
-        id: 'firstName',
+        accessorKey: 'firstNames',
+        id: 'firstNames',
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -84,8 +85,8 @@ export const usersColumns = (): ColumnDef<User>[] => {
         },
       },
       {
-        accessorKey: 'lastName',
-        id: 'lastName',
+        accessorKey: 'lastNames',
+        id: 'lastNames',
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
@@ -117,8 +118,8 @@ export const usersColumns = (): ColumnDef<User>[] => {
         },
       },
       {
-        accessorKey: 'phone',
-        id: 'phone',
+        accessorKey: 'phoneNumber',
+        id: 'phoneNumber',
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
