@@ -25,6 +25,11 @@ export const createChat = async (agentId: string, contactId: string) => {
   return res?.data ?? []
 }
 
+export const assignedUser = async (chatId: string, agentId: string) => {
+  const res = await chats.get(`/${chatId}/assigned/${agentId}`);
+  return res.data
+}
+
 export const getMessagesByChatId = async (chatId: string): Promise<Message[]> => {
   const response = await chats.get<Message[]>(`/${chatId}/messages`)
   return response?.data ?? []

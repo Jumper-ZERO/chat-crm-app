@@ -33,6 +33,7 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { AssignedUser } from '@/features/chats/components/assigned-user'
 import type { Chat, Contact, Message } from '@/features/chats/data/schema'
 import { NewChat } from './components/new-chat'
 
@@ -351,6 +352,8 @@ export function Chats() {
 
                 {/* Right */}
                 <div className='-me-1 flex items-center gap-1 lg:gap-2'>
+                  {/* here */}
+                  <AssignedUser chatId={selectedChat.id} />
                   <Button
                     size='icon'
                     variant='ghost'

@@ -16,7 +16,7 @@ export const getUsersTableData = async (query: DataTableQuery<User>) => {
 }
 
 export const searchUsers = async (search: string): Promise<User[]> => {
-  const { data } = await users.get<User[]>('', { params: { search } });
+  const { data } = await users.get<User[]>('/search', { params: { q: search } });
   return data;
 };
 
