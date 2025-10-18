@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useSocket } from '@/context/socket-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -119,6 +120,13 @@ export function Chats() {
       chat: selectedChat?.id,
       to: selectedChat?.contact.phoneNumber,
       body,
+    })
+    setSelectedChat((chat) => {
+      if (chat) {
+        chat.status = 'open'
+        return chat
+      }
+      return chat
     })
   }
 
@@ -280,6 +288,16 @@ export function Chats() {
                                 'PE'
                               )?.formatNational() ??
                               'unknown'}
+                            <Badge
+                              variant={
+                                chatUsr.status === 'pending'
+                                  ? 'secondary'
+                                  : 'default'
+                              }
+                              className='ml-2'
+                            >
+                              {chatUsr.status}
+                            </Badge>
                           </span>
                           <span
                             className={cn(
