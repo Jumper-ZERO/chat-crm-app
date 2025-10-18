@@ -102,6 +102,7 @@ export function Chats() {
         type: 'text',
         status: 'sent',
         createdAt: new Date().toISOString(),
+        chat: { id: '' },
       },
       priority: 'low',
       status: 'pending',
@@ -124,25 +125,24 @@ export function Chats() {
     if (!socket || !selectedChat?.id) return
 
     const handleNewMessage = (newMessage: Message) => {
+      queryClient.setQueryData(['chat', 'list'], (oldChats: Chat[] = []) => {
+        const exists = oldChats.some((c) => c.id === newMessage.chat.id)
+        if (exists) {
+          return oldChats.map((chat) =>
+            chat.id === newMessage.chat.id
+              ? { ...chat, lastMessage: newMessage }
+              : chat
+          )
+        }
+        return [{ ...newMessage.chat, lastMessage: newMessage }, ...oldChats]
+      })
+
       queryClient.setQueryData(
-        ['chat', selectedChat.id, 'messages'],
+        ['chat', newMessage.chat.id, 'messages'],
         (oldMessages: Message[] | undefined) => {
           if (!oldMessages) return [newMessage]
           console.log(newMessage)
           return [...oldMessages, newMessage]
-        }
-      )
-
-      queryClient.setQueryData(
-        ['chat', 'list'],
-        (oldChats: Chat[] | undefined) => {
-          if (!oldChats) return oldChats
-          return oldChats.map((chat) => {
-            if (chat.id === selectedChat?.id) {
-              return { ...chat, lastMessage: newMessage }
-            }
-            return chat
-          })
         }
       )
     }

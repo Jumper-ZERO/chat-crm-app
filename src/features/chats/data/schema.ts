@@ -9,6 +9,7 @@ export const message = z.object({
   type: z.enum(["text", "image", "audio", "video", "document"]).default("text"),
   status: z.enum(["sent", "delivered", "read"]).default("sent"),
   createdAt: z.iso.datetime(),
+  chat: z.object({ id: z.uuid() }),
 })
 
 export const contact = z.object({
