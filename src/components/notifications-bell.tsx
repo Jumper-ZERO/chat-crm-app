@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { maskAsRead } from '@/services/notification.service'
 import dayjs from 'dayjs'
 import { BellIcon, CircleIcon, MessageSquareDot } from 'lucide-react'
+import { toast } from 'sonner'
 import { useNotifications } from '@/hooks/useNotifications'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,9 +17,17 @@ export const NotificationBell = () => {
   const { notifications, isLoading } = useNotifications()
   console.log(notifications)
   const [readMessages, setReadMessages] = useState<number[]>([])
+  const { mutate } = useMutation({
+    mutationFn: (notifs: string[]) => maskAsRead(notifs),
+    onError: () =>
+      toast.error('No se pudo marco como leido las notificaciones'),
+  })
 
   const handleMarkAllRead = () => {
-    setReadMessages(notifications.map((item: any) => item.id))
+    const noReadNotifications = notifications
+      .filter((n: any) => !n.read)
+      ?.map((n: any) => n.id)
+    mutate(noReadNotifications)
   }
 
   const handleMarkSingleRead = (id: number) => {
@@ -31,7 +42,7 @@ export const NotificationBell = () => {
       <PopoverTrigger asChild>
         <Button variant='ghost' size='icon' className='relative rounded-full'>
           <BellIcon />
-          {notifications.some((n: any) => !n.read) ?? (
+          {notifications.some((n: any) => !n?.read) && (
             <span className='absolute -top-0 -right-0 size-2 animate-bounce rounded-full bg-sky-600 dark:bg-sky-400' />
           )}
           <span className='sr-only'>Notifications</span>
@@ -77,7 +88,7 @@ export const NotificationBell = () => {
                       <p className='text-muted-foreground basis-2/5 text-right text-xs'>{`${dayjs(item.time).format('MMMM D')} ago`}</p>
                     </div>
                   </div>
-                  {item.read && (
+                  {!item.read && (
                     <CircleIcon className='fill-primary text-primary size-2 self-center' />
                   )}
                 </li>

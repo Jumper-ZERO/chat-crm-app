@@ -92,8 +92,8 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <SocketProvider>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
           <ThemeProvider>
             <I18nProvider lang='es'>
               <FontProvider>
@@ -103,8 +103,8 @@ if (!rootElement.innerHTML) {
               </FontProvider>
             </I18nProvider>
           </ThemeProvider>
-        </QueryClientProvider>
-      </SocketProvider>
+        </SocketProvider>
+      </QueryClientProvider>
     </StrictMode>
   )
 }

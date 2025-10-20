@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { sendTemplate } from '@/services/whatsapp.service'
 import { io, Socket } from 'socket.io-client'
 import { toast } from 'sonner'
@@ -51,8 +52,15 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const { user, accessToken: token } = useAuthStore((state) => state.auth)
-  const [unreadCount, setUnreadCount] = useState(0)
+  const [_unreadCount, setUnreadCount] = useState(0)
+  const queryClient = useQueryClient()
   const originalTitle = document.title
+
+  Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+      console.log('permiso concedido')
+    }
+  })
 
   useEffect(() => {
     if (!user) {
@@ -90,32 +98,27 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       setIsConnected(false)
     })
 
-    newSocket.on(
-      'new-notification',
-      (data: {
-        type: string
-        chatId: string
-        contact: { username: string }
-        message: { body: string }
-      }) => {
-        setUnreadCount((prev) => {
-          const next = prev + 1
-          document.title = `(${next}) Nuevo mensaje - MiApp`
-          return next
-        })
+    // TODO: Best coding format in the future
+    newSocket.on('new-notification', (notif) => {
+      setUnreadCount((prev) => {
+        const next = prev + 1
+        document.title = `(${next}) Nuevo mensaje - MiApp`
+        return next
+      })
 
-        const audio = new Audio('/sounds/alert.mp3')
+      console.log(notif)
+      new Notification(notif.title ?? 'Mensaje nuevo', {
+        body: notif.message ?? 'Vista no disponible',
+      })
 
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            new Notification(data.contact.username ?? 'Mensaje nuevo', {
-              body: data.message.body ?? 'Vista no disponible',
-            })
-          }
-          audio.play()
-        })
-      }
-    )
+      queryClient.setQueryData(['notifications'], (prev: any) => [
+        notif,
+        ...prev,
+      ])
+
+      const audio = new Audio('/sounds/alert.mp3')
+      audio.play()
+    })
 
     newSocket.on('connect-error', (error) => {
       console.error('Socket connection error:', error)
@@ -147,9 +150,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
   }, [])
 
   return (
-    <SocketContext.Provider
-      value={{ socket, isConnected }}
-    >
+    <SocketContext.Provider value={{ socket, isConnected }}>
       {children}
     </SocketContext.Provider>
   )
