@@ -51,6 +51,8 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const { user, accessToken: token } = useAuthStore((state) => state.auth)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const originalTitle = document.title
 
   useEffect(() => {
     if (!user) {
@@ -88,6 +90,33 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       setIsConnected(false)
     })
 
+    newSocket.on(
+      'new-notification',
+      (data: {
+        type: string
+        chatId: string
+        contact: { username: string }
+        message: { body: string }
+      }) => {
+        setUnreadCount((prev) => {
+          const next = prev + 1
+          document.title = `(${next}) Nuevo mensaje - MiApp`
+          return next
+        })
+
+        const audio = new Audio('/sounds/alert.mp3')
+
+        Notification.requestPermission().then((permission) => {
+          if (permission === 'granted') {
+            new Notification(data.contact.username ?? 'Mensaje nuevo', {
+              body: data.message.body ?? 'Vista no disponible',
+            })
+          }
+          audio.play()
+        })
+      }
+    )
+
     newSocket.on('connect-error', (error) => {
       console.error('Socket connection error:', error)
       setIsConnected(false)
@@ -102,8 +131,25 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     }
   }, [user, token])
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setUnreadCount(0)
+        document.title = originalTitle
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider
+      value={{ socket, isConnected }}
+    >
       {children}
     </SocketContext.Provider>
   )
