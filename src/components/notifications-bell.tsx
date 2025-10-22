@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { maskAsRead } from '@/services/notification.service'
 import dayjs from 'dayjs'
 import { BellIcon, CircleIcon, MessageSquareDot } from 'lucide-react'
@@ -17,10 +17,15 @@ export const NotificationBell = () => {
   const { notifications, isLoading } = useNotifications()
   console.log(notifications)
   const [readMessages, setReadMessages] = useState<number[]>([])
+  const queryClient = useQueryClient()
   const { mutate } = useMutation({
     mutationFn: (notifs: string[]) => maskAsRead(notifs),
     onError: () =>
       toast.error('No se pudo marco como leido las notificaciones'),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+      }),
   })
 
   const handleMarkAllRead = () => {
