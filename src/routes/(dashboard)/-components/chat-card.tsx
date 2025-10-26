@@ -1,46 +1,86 @@
-import { Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
-import { ChatInput } from "./chat-input"
-import { ChatMessage } from "./chat-message"
+import { ChatInput } from "./chat-input";
+import { ChatMessage } from "./chat-message";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { initialsName, numberFormat } from "@/lib/format"
-import { useT } from "@/lib/i18n/useT"
-import type { MessageData, UserContact } from "@/types/chat"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { initialsName, numberFormat } from "@/lib/format-chat";
+import { useT } from "@/lib/i18n/useT";
+import type { MessageData, UserContact } from "@/types/chat";
 
+type ServerToClientEvents = {
+  newMessage: (msg: { from: string; text: string }) => void;
+};
 
-export const ChatCard = ({ messages, contact }: { messages?: MessageData[], contact: UserContact }) => {
-  const [chatMessages, setChatMessages] = useState(messages || [])
-  const hasMessages = chatMessages && chatMessages.length > 0
+type ClientToServerEvents = {
+  joinChat: (chatId: string) => void;
+};
 
-  const addMessage = (msg: string) => {
-    const newMessage: MessageData = { content: msg, isSent: true }
-    setChatMessages(prev => [...prev, newMessage])
-  }
+export const ChatCard = ({ contact }: { contact: UserContact }) => {
+  const socketRef = useRef<Socket<
+    ServerToClientEvents,
+    ClientToServerEvents
+  > | null>(null);
+  const [messages, setMessages] = useState<MessageData[]>([]);
 
-  const renderedMessages = chatMessages?.map((m, i) => (
-    <ChatMessage key={i} content={m.content} isSent={m.isSent} />
-  ))
+  useEffect(() => {
+    const socket = io(
+      import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3000/whatsapp"
+    );
+
+    socketRef.current = socket;
+
+    // Unirse al chat usando el número de teléfono como chatId
+    socket.emit("joinChat", contact.phoneNumber);
+
+    // Escuchar mensajes entrantes
+    socket.on("newMessage", (msg) => {
+      // Solo agregar mensajes que vienen del contacto
+      if (msg.from === contact.phoneNumber) {
+        setMessages((prev) => [...prev, { content: msg.text, isSent: false }]);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [contact.phoneNumber]);
+
+  const handleSend = async (msg: string) => {
+    const newMessage: MessageData = { content: msg, isSent: true };
+    setMessages((prev) => [...prev, newMessage]);
+  };
 
   return (
     <Card>
       <CardHeader>
         <ChatCardHeader name={contact?.fullName} phone={contact.phoneNumber} />
-        <CardAction><Plus /></CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {hasMessages ? renderedMessages : <ChatCardEmpty />}
+        {messages.length > 0 ? (
+          messages.map((m, i) => (
+            <ChatMessage key={i} content={m.content} isSent={m.isSent} />
+          ))
+        ) : (
+          <ChatCardEmpty />
+        )}
       </CardContent>
       <CardFooter>
-        <ChatInput onSend={addMessage} />
+        <ChatInput onSend={handleSend} />
       </CardFooter>
     </Card>
-  )
-}
+  );
+};
 
-const ChatCardHeader = ({ name, phone }: { name?: string, phone: string }) => {
+const ChatCardHeader = ({ name, phone }: { name?: string; phone: string }) => {
   const { t } = useT();
   const initials = initialsName(name || "");
   const phoneFormat = numberFormat(phone);
@@ -51,20 +91,20 @@ const ChatCardHeader = ({ name, phone }: { name?: string, phone: string }) => {
         <AvatarFallback className="font-bold">{initials}</AvatarFallback>
       </Avatar>
       <CardTitle className="flex flex-col space-y-1 items-start">
-        <p className="font-bold">{name || t("chat.unknownUser")}</p>
+        <p className="font-bold">{name || t("chat.user.unknown")}</p>
         <p className="text-sm text-muted-foreground">{phoneFormat}</p>
       </CardTitle>
     </div>
-  )
-}
+  );
+};
 
 const ChatCardEmpty = () => {
   const { t } = useT();
   return (
     <div className="flex items-center justify-center h-full">
       <h3 className="scroll-m-20 text-center py-7 text-2xl font-semibold tracking-tight">
-        {t("chat.noMessagesYet")}
+        {t("chat.empty")}
       </h3>
     </div>
-  )
-}
+  );
+};
