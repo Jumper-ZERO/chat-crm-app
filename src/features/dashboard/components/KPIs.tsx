@@ -30,15 +30,21 @@ export const KPIs = () => {
         icon={MessageSquareDot}
       />
       <KPICard
-        title='Mensajes de hoy'
-        value={kpis?.messagesToday.value ?? 0}
-        porcentLastMonth={kpis?.messagesToday.porcentLastMonth ?? '0%'}
+        title='Mensajes de este mes'
+        value={kpis?.messagesThisMonth.value ?? 0}
+        porcentLastMonth={kpis?.messagesThisMonth.porcentLastMonth ?? '0%'}
         icon={MessageSquareReply}
       />
       <KPICard
-        title='Usuarios Activos'
+        title='Agentes por hora'
         value={kpis?.agentsActive.value ?? 0}
         porcentLastMonth={kpis?.agentsActive.porcentLastMonth ?? '0%'}
+        icon={Activity}
+      />
+      <KPICard
+        title='Transferencias este mes'
+        value={kpis?.transfersThisMonth?.value ?? 0}
+        porcentLastMonth={kpis?.transfersThisMonth?.porcentLastMonth ?? '0%'}
         icon={Activity}
       />
     </div>
@@ -59,7 +65,7 @@ const KPICard = ({
   const Icon: LucideIcon = icon
   return (
     <Card>
-      <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+      <CardHeader className='flex flex-row items-center justify-between space-y-0'>
         <CardTitle className='text-sm font-medium capitalize'>
           {title}
         </CardTitle>

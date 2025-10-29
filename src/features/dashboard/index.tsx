@@ -16,6 +16,8 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { KPIs } from '@/features/dashboard/components/KPIs'
+import { SentimentLineChart } from '@/features/dashboard/components/sentimient-line-chat'
+import { TopContacts } from '@/features/dashboard/components/top-contacts'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recent-sales'
 
@@ -64,23 +66,17 @@ export function Dashboard() {
           <TabsContent value='overview' className='space-y-4'>
             <KPIs />
             <div className='grid grid-cols-1 gap-4 lg:grid-cols-7'>
-              <Card className='col-span-1 lg:col-span-4'>
-                <CardHeader>
-                  <CardTitle>Overview</CardTitle>
-                </CardHeader>
-                <CardContent className='ps-2'>
-                  <Overview />
-                </CardContent>
-              </Card>
+              <SentimentLineChart />
               <Card className='col-span-1 lg:col-span-3'>
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
+                  <CardTitle>Contactos más activos</CardTitle>
                   <CardDescription>
-                    You made 265 sales this month.
+                    Top 5 por cantidad de mensajes este mes
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  {/* <RecentSales /> */}
+                  <TopContacts />
                 </CardContent>
               </Card>
             </div>
