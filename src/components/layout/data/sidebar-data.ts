@@ -61,7 +61,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Chats',
           url: '/chats',
-          badge: '3',
+          // badge: '3', // TODO: This is for chat notifications
           icon: MessagesSquare,
         },
         {
