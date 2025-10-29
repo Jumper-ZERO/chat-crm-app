@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -6,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -18,8 +17,6 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { KPIs } from '@/features/dashboard/components/KPIs'
 import { SentimentLineChart } from '@/features/dashboard/components/sentimient-line-chat'
 import { TopContacts } from '@/features/dashboard/components/top-contacts'
-import { Overview } from './components/overview'
-import { RecentSales } from './components/recent-sales'
 
 export function Dashboard() {
   return (
@@ -40,9 +37,6 @@ export function Dashboard() {
       <Main>
         <div className='mb-2 flex items-center justify-between space-y-2'>
           <h1 className='text-2xl font-bold tracking-tight'>Dashboard</h1>
-          <div className='flex items-center space-x-2'>
-            <Button>Download</Button>
-          </div>
         </div>
         <Tabs
           orientation='vertical'
@@ -50,7 +44,7 @@ export function Dashboard() {
           className='space-y-4'
         >
           <div className='w-full overflow-x-auto pb-2'>
-            <TabsList>
+            {/* <TabsList>
               <TabsTrigger value='overview'>Overview</TabsTrigger>
               <TabsTrigger value='analytics' disabled>
                 Analytics
@@ -61,7 +55,7 @@ export function Dashboard() {
               <TabsTrigger value='notifications' disabled>
                 Notifications
               </TabsTrigger>
-            </TabsList>
+            </TabsList> */}
           </div>
           <TabsContent value='overview' className='space-y-4'>
             <KPIs />
@@ -75,7 +69,6 @@ export function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* <RecentSales /> */}
                   <TopContacts />
                 </CardContent>
               </Card>
