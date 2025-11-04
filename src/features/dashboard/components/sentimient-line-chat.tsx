@@ -37,8 +37,6 @@ export function SentimentLineChart() {
     queryFn: () => getSentimentMonthlyTrend,
   })
 
-  console.log(data)
-
   const chartData =
     data?.map((item) => ({
       day: format(new Date(item.date), 'd MMM'),
