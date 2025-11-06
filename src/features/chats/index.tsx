@@ -36,7 +36,9 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { AssignedUser } from '@/features/chats/components/assigned-user'
+import { SentimentIndicator } from '@/features/chats/components/sentiment-indicator'
 import type { Chat, Contact, Message } from '@/features/chats/data/schema'
+import { getSentimentChat } from '@/features/dashboard/clients/sentiment.client'
 import { NewChat } from './components/new-chat'
 
 export function getChatDateLabel(date: Date | string): string {
@@ -82,6 +84,7 @@ export function groupMessagesByDate(
 }
 
 export function Chats() {
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const { socket } = useSocket()
   const [messageInput, setMessageInput] = useState<string>('')
@@ -91,7 +94,12 @@ export function Chats() {
   )
   const [createConversationDialogOpened, setCreateConversationDialog] =
     useState(false)
-  const queryClient = useQueryClient()
+
+  const { data: sentimentData } = useQuery({
+    queryKey: ['sentiment', 'chat', selectedChat?.id],
+    queryFn: () => getSentimentChat(selectedChat!.id),
+    enabled: !!selectedChat?.id,
+  })
 
   const handleNewChatCreated = (newContact: Contact) => {
     if (!newContact) return
@@ -373,6 +381,7 @@ export function Chats() {
                 {/* Right */}
                 <div className='-me-1 flex items-center gap-1 lg:gap-2'>
                   {/* here */}
+                  <SentimentIndicator sentiment={sentimentData} />
                   <AssignedUser chatId={selectedChat.id} />
                   <Button
                     size='icon'

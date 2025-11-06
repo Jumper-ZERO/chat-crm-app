@@ -1,4 +1,7 @@
 :root {
+  --positive: oklch(0.571 0.181 145.0);
+  --neutro: oklch(0.549 0.000 0.0);
+  --negative: oklch(0.55 0.2 20);
   --background: oklch(0.9911 0 0);
   --foreground: oklch(0.2046 0 0);
   --card: oklch(0.9911 0 0);
@@ -54,6 +57,9 @@
 }
 
 .dark {
+  --positive: oklch(0.571 0.181 145.0);
+  --neutro: oklch(0.549 0.000 0.0);
+  --negative: oklch(0.55 0.2 20);
   --background: oklch(0.1822 0 0);
   --foreground: oklch(0.9288 0.0126 255.5078);
   --card: oklch(0.2046 0 0);
