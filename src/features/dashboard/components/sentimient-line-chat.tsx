@@ -122,21 +122,21 @@ export function SentimentLineChart() {
             <Line
               dataKey='pos'
               type='monotone'
-              stroke='green'
+              stroke='oklch(0.571 0.181 145.0)'
               strokeWidth={2}
               dot={true}
             />
             <Line
               dataKey='neg'
               type='monotone'
-              stroke='red'
+              stroke='oklch(0.55 0.2 20)'
               strokeWidth={2}
               dot={false}
             />
             <Line
               dataKey='neu'
               type='monotone'
-              stroke='silver'
+              stroke='oklch(0.549 0.000 0.0)'
               strokeWidth={2}
               dot={false}
             />
