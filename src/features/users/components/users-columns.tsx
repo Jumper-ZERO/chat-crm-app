@@ -15,6 +15,7 @@ const trnl: Partial<Record<keyof User, string>> = {
   lastName: 'Apellidos',
   username: 'Username',
   email: 'Correo',
+  status: 'Estado',
   createdAt: 'Creación',
 }
 
@@ -171,6 +172,27 @@ export const usersColumns = (): ColumnDef<User>[] => {
         enableColumnFilter: true,
         enableSorting: false,
         enableHiding: false,
+      },
+      {
+        accessorKey: 'status',
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={trnl['status'] ?? 'Status'}
+          />
+        ),
+        cell: ({ cell }) => {
+          const config = {
+            offline: '🔴 Offline',
+            online: '🟢 Online',
+            busy: '🟡 Busy',
+          }
+          const value = cell.getValue<User['status']>()
+          return config[value]
+        },
+        meta: {
+          label: trnl['status'] ?? 'Status',
+        },
       },
       {
         id: 'actions',

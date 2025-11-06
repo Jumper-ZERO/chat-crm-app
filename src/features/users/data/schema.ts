@@ -17,6 +17,7 @@ export const userSchema = z.object({
   avatar: z.url(),
   email: z.string(),
   phone: z.string(),
+  status: z.enum(['online', 'offline', 'busy']),
   role: userRoleSchema,
   password: z.string().optional(),
   companyId: z.uuid(),
