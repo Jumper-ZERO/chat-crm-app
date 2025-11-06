@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import {
   Activity,
+  ArrowLeftRight,
   MessageSquareDot,
   MessageSquareReply,
   type LucideIcon,
@@ -36,7 +37,7 @@ export const KPIs = () => {
         icon={MessageSquareReply}
       />
       <KPICard
-        title='Agentes por hora'
+        title='Agentes activos'
         value={kpis?.agentsActive.value ?? 0}
         porcentLastMonth={kpis?.agentsActive.porcentLastMonth ?? '0%'}
         icon={Activity}
@@ -45,7 +46,7 @@ export const KPIs = () => {
         title='Transferencias este mes'
         value={kpis?.transfersThisMonth?.value ?? 0}
         porcentLastMonth={kpis?.transfersThisMonth?.porcentLastMonth ?? '0%'}
-        icon={Activity}
+        icon={ArrowLeftRight}
       />
     </div>
   )
