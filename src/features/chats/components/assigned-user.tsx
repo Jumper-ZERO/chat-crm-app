@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { assignedUser } from '@/services/chat.service'
+import { UserRoundSearch } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -31,7 +32,12 @@ export const AssignedUser = ({ chatId }: { chatId: string }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant='outline'>Assigned User</Button>
+        <Button variant='outline'>
+          <span className='hidden sm:inline'>Assigned User</span>
+          <span className='inline sm:hidden'>
+            <UserRoundSearch />
+          </span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='w-91'>
         <DropdownMenuLabel>User List</DropdownMenuLabel>
