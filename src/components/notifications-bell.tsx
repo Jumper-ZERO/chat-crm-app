@@ -15,7 +15,6 @@ import { Separator } from '@/components/ui/separator'
 
 export const NotificationBell = () => {
   const { notifications, isLoading } = useNotifications()
-  console.log(notifications)
   const [readMessages, setReadMessages] = useState<number[]>([])
   const queryClient = useQueryClient()
   const { mutate } = useMutation({
@@ -37,7 +36,6 @@ export const NotificationBell = () => {
 
   const handleMarkSingleRead = (id: number) => {
     if (!readMessages.includes(id)) {
-      console.log(`Notificacion: ${id}`)
       setReadMessages((prev) => [...prev, id])
     }
   }
