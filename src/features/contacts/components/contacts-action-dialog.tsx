@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -25,50 +24,33 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PhoneInput } from '@/components/ui/phone-input'
-import { useSearchUsers } from '@/components/contact/hooks/user-search-users'
-import { UserCombobox } from '@/features/contacts/components/user-combobox'
 import { type Contact } from '../data/schema'
 
 const formSchema = z
   .object({
-    name: z.string().optional(),
-    phone: z.string(),
-    assignedTo: z.string(),
+    username: z.string().optional(),
+    phoneNumber: z.string(),
     isEdit: z.boolean(),
   })
   .refine(
-    ({ isEdit, phone }) => {
+    ({ isEdit, phoneNumber }) => {
       if (isEdit) return true
-      return phone.trim().length > 0
+      return phoneNumber.trim().length > 0
     },
     {
       message: 'Phone number is required.',
-      path: ['phone'],
+      path: ['phoneNumber'],
     }
   )
   .refine(
-    ({ phone }) => {
-      return isValidPhoneNumber(phone)
+    ({ phoneNumber }) => {
+      return isValidPhoneNumber(`+${phoneNumber}`)
     },
     {
       message: 'Not is a valid number phone',
-      path: ['phone'],
+      path: ['phoneNumber'],
     }
   )
-  .refine(
-    ({ isEdit, assignedTo }) => {
-      if (isEdit) return true
-      return assignedTo.trim().length > 0
-    },
-    {
-      message: 'Assigned user is required.',
-      path: ['assignedTo'],
-    }
-  )
-  .refine(({ assignedTo }) => z.uuid().safeParse(assignedTo).success, {
-    message: 'Assigned user must be a valid UUID.',
-    path: ['assignedTo'],
-  })
 
 type ContactForm = z.infer<typeof formSchema>
 
@@ -84,33 +66,37 @@ export function ContactsActionDialog({
   onOpenChange,
 }: ContactsActionDialogProps) {
   const queryClient = useQueryClient()
-  const [search, setSearch] = useState('')
   const isEdit = !!currentRow
   const form = useForm<ContactForm>({
     resolver: zodResolver(formSchema),
     defaultValues: isEdit
       ? {
           ...currentRow,
-          assignedTo: currentRow.assignedTo?.id,
+          username: currentRow?.username ?? '',
           isEdit,
         }
       : {
-          phone: '',
-          assignedTo: '',
+          phoneNumber: '',
           isEdit,
         },
   })
-
-  const { data: users = [] } = useSearchUsers(search)
 
   const onSubmit = (values: ContactForm) => {
     form.reset()
     const { isEdit, ...data } = values
 
+    const sanitized = {
+      ...data,
+      username: data.username,
+      phoneNumber: data.phoneNumber.startsWith('+')
+        ? data.phoneNumber.slice(1)
+        : data.phoneNumber,
+    }
+
     const apiCall =
       isEdit && currentRow?.id
-        ? editContact(currentRow.id, data)
-        : saveContact(data)
+        ? editContact(currentRow.id, sanitized)
+        : saveContact(sanitized)
 
     toast.promise(apiCall, {
       loading: 'Guardando...',
@@ -161,11 +147,11 @@ export function ContactsActionDialog({
               {/* Name */}
               <FormField
                 control={form.control}
-                name='name'
+                name='username'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='col-span-2 text-end'>
-                      Name (Optional)
+                      Username
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -183,12 +169,12 @@ export function ContactsActionDialog({
               {/* Phone */}
               <FormField
                 control={form.control}
-                name='phone'
+                name='phoneNumber'
                 render={({ field }) => {
                   const valueInE164 = field.value
                     ? field.value.startsWith('+')
                       ? field.value
-                      : `+51${field.value}`
+                      : `+${field.value}`
                     : undefined
 
                   return (
@@ -197,7 +183,7 @@ export function ContactsActionDialog({
                       <FormControl>
                         <PhoneInput
                           value={valueInE164}
-                          onChange={field.onChange ?? ''}
+                          onChange={field.onChange}
                           defaultCountry='PE'
                           international={false}
                           placeholder='987 654 321'
@@ -210,7 +196,7 @@ export function ContactsActionDialog({
               />
 
               {/* Assigned To */}
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name='assignedTo'
                 render={({ field }) => (
@@ -225,7 +211,7 @@ export function ContactsActionDialog({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </form>
           </Form>
         </div>
