@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/tooltip'
 
 interface SentimentData {
-  chatId: string
+  chatId?: string
   avgPos: number
   avgNeg: number
   avgNeu: number
@@ -47,9 +47,9 @@ export function SentimentIndicator({ sentiment }: SentimentIndicatorProps) {
   const { avgPos, avgNeu, avgNeg, dominant, totalMessages } = sentiment
   const { color, emoji, label } = config[dominant]
 
-  config['POS'].avg = avgPos
-  config['NEU'].avg = avgNeu
-  config['NEG'].avg = avgNeg
+  config['POS'].avg = avgPos ?? 0
+  config['NEU'].avg = avgNeu ?? 0
+  config['NEG'].avg = avgNeg ?? 0
 
   return (
     <TooltipProvider>

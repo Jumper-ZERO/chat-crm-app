@@ -38,7 +38,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { AssignedUser } from '@/features/chats/components/assigned-user'
 import { SentimentIndicator } from '@/features/chats/components/sentiment-indicator'
 import type { Chat, Contact, Message } from '@/features/chats/data/schema'
-import { getSentimentChat } from '@/features/dashboard/clients/sentiment.client'
+import { useSentiment } from '@/features/chats/hooks/use-sentiment'
 import { NewChat } from './components/new-chat'
 
 export function getChatDateLabel(date: Date | string): string {
@@ -95,11 +95,7 @@ export function Chats() {
   const [createConversationDialogOpened, setCreateConversationDialog] =
     useState(false)
 
-  const { data: sentimentData } = useQuery({
-    queryKey: ['sentiment', 'chat', selectedChat?.id],
-    queryFn: () => getSentimentChat(selectedChat!.id),
-    enabled: !!selectedChat?.id,
-  })
+  const sentimentData = useSentiment(selectedChat?.id)
 
   const handleNewChatCreated = (newContact: Contact) => {
     if (!newContact) return
