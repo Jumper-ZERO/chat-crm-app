@@ -1,5 +1,62 @@
+app:
+  name: "CRM Business App"
 chat:
-  unknownUser: "Usuario desconocido"
-  noMessagesYet: "No hay mensajes aún"
-  sendMessage: "Enviar mensaje"
-  placeholder: "Escribe tu mensaje aquí..."
+  user:
+    unknown: "Usuario desconocido"
+  empty: "No hay mensajes aún"
+  input:
+    placeholder: "Escribe tu mensaje aquí..."
+
+login:
+  title: "Iniciar Sesión"
+  desc: "Ingrese su nombre de usuario."
+  form:
+    username:
+      label: "Nombre de usuario"
+      placeholder: "Escribe aqui..."
+    password:
+      label: "Contraseña"
+      forgot: "¿Olvidaste tu contraseña?"
+    button: "Iniciar sesión"
+  link:
+    register: "Regístrate"
+    noaccount: "¿No tienes una cuenta?"
+
+
+sign-in:
+  title: "Inicia sesión"
+  desc: "Ingresa tu nombre de usuario y contraseña para acceder a tu cuenta."
+  form:
+    username:
+      label: "Nombre de usuario"
+      placeholder: "Jeremi"
+    password:
+      label: "Contraseña"
+      forgot: "¿Olvidaste tu contraseña?"
+    button:
+      submit: "Entrar"
+    footer:
+      msg: "Al hacer clic en"
+      accept: ", aceptas los "
+      and: "y la"
+      term: "Términos de servicio"
+      policy: "Política de privacidad"
+  link:
+    register: "Regístrate"
+    noaccount: "¿No tienes una cuenta?"
+
+forgot:
+  brand: "CODECTA"
+  title: "Recupera tu cuenta"
+  desc: "Ingresa tu correo para recibir un enlace y recuperar tu contraseña."
+  form:
+    email:
+      label: "Correo electrónico"
+      placeholder: "m@example.com"
+    button: "Enviar enlace"
+  link:
+    back: "Volver a iniciar sesión"
+  footer:
+    accept: "Al continuar aceptas nuestros"
+    terms: "Términos de servicio"
+    privacy: "Política de privacidad"
